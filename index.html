@@ -6,6 +6,9 @@
     <title>MetabolicRx NutritionAI | Personalized Meal Planning</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Add jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root {
             --primary: #5E35B1;
@@ -694,6 +697,16 @@
             background-color: var(--primary-light);
         }
         
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .action-buttons button {
+            flex: 1;
+        }
+        
         @media print {
             body * {
                 visibility: hidden;
@@ -711,7 +724,7 @@
                 box-shadow: none;
                 padding: 1rem;
             }
-            .print-btn {
+            .print-btn, .pdf-btn {
                 display: none;
             }
         }
@@ -771,7 +784,7 @@
                 
                 <div class="form-group">
                     <label for="user-name">Your Name</label>
-                    <input type="text" id="user-name" placeholder="Enter your name" value="">
+                    <input type="text" id="user-name" placeholder="Enter your name">
                 </div>
                 
                 <div class="form-group">
@@ -884,6 +897,7 @@
             
             <div class="results-panel">
                 <button id="generate-grocery" class="full-width-btn" style="margin-bottom: 2rem; display: none;">Generate Grocery List</button>
+                <button id="download-meal-plan-pdf" class="full-width-btn" style="margin-bottom: 2rem; display: none;">Download Meal Plan PDF</button>
                 <h2>Your Personalized Meal Plan</h2>
                 
                 <div class="loading" id="loading">
@@ -1037,7 +1051,10 @@
             <div id="grocery-list-content">
                 <!-- Grocery list will be generated here -->
             </div>
-            <button class="print-btn" id="print-grocery-list">Print Grocery List</button>
+            <div class="action-buttons">
+                <button class="print-btn" id="print-grocery-list">Print Grocery List</button>
+                <button class="pdf-btn" id="download-grocery-pdf">Download PDF</button>
+            </div>
         </div>
     </div>
     
@@ -1060,6 +1077,9 @@
     </div>
     
     <script>
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        
         document.addEventListener('DOMContentLoaded', function() {
             // Set up user name display
             const userNameInput = document.getElementById('user-name');
@@ -1119,9 +1139,13 @@
             const generateGroceryBtn = document.getElementById('generate-grocery');
             const groceryListModal = document.getElementById('grocery-list-modal');
             const printGroceryBtn = document.getElementById('print-grocery-list');
+            const downloadGroceryPdfBtn = document.getElementById('download-grocery-pdf');
             const servingsModal = document.getElementById('servings-modal');
             const servingsCountSelect = document.getElementById('servings-count');
             const generateGroceryFinalBtn = document.getElementById('generate-grocery-final');
+            
+            // PDF download buttons
+            const downloadMealPlanPdfBtn = document.getElementById('download-meal-plan-pdf');
             
             // Check if API key exists in localStorage
             if (localStorage.getItem('metabolicrx_api_key')) {
@@ -1185,6 +1209,16 @@
                 window.print();
             });
             
+            // Download grocery list as PDF
+            downloadGroceryPdfBtn.addEventListener('click', function() {
+                generateGroceryPdf();
+            });
+            
+            // Download meal plan as PDF
+            downloadMealPlanPdfBtn.addEventListener('click', function() {
+                generateMealPlanPdf();
+            });
+            
             // Generate grocery list button click
             generateGroceryBtn.addEventListener('click', function() {
                 servingsModal.style.display = 'flex';
@@ -1217,8 +1251,9 @@
             const mealPlanElement = document.getElementById('meal-plan');
             const defaultMessage = document.getElementById('default-message');
             const generateGroceryElement = document.getElementById('generate-grocery');
+            const downloadMealPlanPdfElement = document.getElementById('download-meal-plan-pdf');
             
-            // Meal database with raw ingredient quantities
+            // Meal database with raw ingredient quantities (updated to use weights)
             const mealDatabase = [
                 // Breakfast meals
                 {
@@ -1231,8 +1266,8 @@
                     carbs: '35g',
                     rawIngredients: [
                         { name: 'large eggs', amount: 2, unit: '' },
-                        { name: 'fresh spinach', amount: 0.25, unit: 'cup' },
-                        { name: 'avocado', amount: 0.25, unit: '' },
+                        { name: 'fresh spinach', amount: 1, unit: 'oz' },
+                        { name: 'avocado', amount: 2, unit: 'oz' },
                         { name: 'whole grain bread', amount: 1, unit: 'slice' },
                         { name: 'olive oil', amount: 1, unit: 'tsp' }
                     ]
@@ -1246,9 +1281,9 @@
                     protein: '18g',
                     carbs: '45g',
                     rawIngredients: [
-                        { name: 'Greek yogurt', amount: 1, unit: 'cup' },
-                        { name: 'granola', amount: 0.25, unit: 'cup' },
-                        { name: 'mixed berries', amount: 0.5, unit: 'cup' },
+                        { name: 'Greek yogurt', amount: 6, unit: 'oz' },
+                        { name: 'granola', amount: 0.5, unit: 'oz' },
+                        { name: 'mixed berries', amount: 2, unit: 'oz' },
                         { name: 'honey', amount: 1, unit: 'tsp' }
                     ]
                 },
@@ -1261,9 +1296,9 @@
                     protein: '30g',
                     carbs: '50g',
                     rawIngredients: [
-                        { name: 'protein pancake mix', amount: 0.5, unit: 'cup' },
-                        { name: 'banana', amount: 0.5, unit: '' },
-                        { name: 'almond butter', amount: 1, unit: 'tbsp' },
+                        { name: 'protein pancake mix', amount: 1, unit: 'oz' },
+                        { name: 'banana', amount: 3, unit: 'oz' },
+                        { name: 'almond butter', amount: 0.5, unit: 'oz' },
                         { name: 'maple syrup', amount: 1, unit: 'tbsp' }
                     ]
                 },
@@ -1277,10 +1312,10 @@
                     protein: '40g',
                     carbs: '20g',
                     rawIngredients: [
-                        { name: 'chicken breast', amount: 1, unit: '' },
-                        { name: 'mixed greens', amount: 2, unit: 'cups' },
-                        { name: 'cherry tomatoes', amount: 0.5, unit: 'cup' },
-                        { name: 'cucumber', amount: 0.5, unit: '' },
+                        { name: 'chicken breast', amount: 6, unit: 'oz' },
+                        { name: 'mixed greens', amount: 2, unit: 'oz' },
+                        { name: 'cherry tomatoes', amount: 3, unit: 'oz' },
+                        { name: 'cucumber', amount: 2, unit: 'oz' },
                         { name: 'balsamic vinaigrette', amount: 2, unit: 'tbsp' }
                     ]
                 },
@@ -1293,11 +1328,11 @@
                     protein: '15g',
                     carbs: '60g',
                     rawIngredients: [
-                        { name: 'quinoa', amount: 0.5, unit: 'cup' },
-                        { name: 'bell peppers', amount: 1, unit: '' },
-                        { name: 'zucchini', amount: 0.5, unit: '' },
+                        { name: 'quinoa', amount: 2, unit: 'oz' },
+                        { name: 'bell peppers', amount: 3, unit: 'oz' },
+                        { name: 'zucchini', amount: 2, unit: 'oz' },
                         { name: 'olive oil', amount: 1, unit: 'tbsp' },
-                        { name: 'feta cheese', amount: 0.25, unit: 'cup' }
+                        { name: 'feta cheese', amount: 1, unit: 'oz' }
                     ]
                 },
                 {
@@ -1311,8 +1346,8 @@
                     rawIngredients: [
                         { name: 'whole wheat tortilla', amount: 1, unit: '' },
                         { name: 'turkey slices', amount: 3, unit: 'oz' },
-                        { name: 'avocado', amount: 0.25, unit: '' },
-                        { name: 'lettuce', amount: 0.5, unit: 'cup' },
+                        { name: 'avocado', amount: 1, unit: 'oz' },
+                        { name: 'lettuce', amount: 0.5, unit: 'oz' },
                         { name: 'tomato', amount: 2, unit: 'slices' }
                     ]
                 },
@@ -1326,9 +1361,9 @@
                     protein: '45g',
                     carbs: '40g',
                     rawIngredients: [
-                        { name: 'salmon fillet', amount: 1, unit: '' },
-                        { name: 'quinoa', amount: 0.5, unit: 'cup' },
-                        { name: 'asparagus', amount: 0.5, unit: 'bunch' },
+                        { name: 'salmon fillet', amount: 6, unit: 'oz' },
+                        { name: 'quinoa', amount: 2, unit: 'oz' },
+                        { name: 'asparagus', amount: 4, unit: 'oz' },
                         { name: 'lemon', amount: 0.5, unit: '' },
                         { name: 'olive oil', amount: 1, unit: 'tbsp' }
                     ]
@@ -1342,9 +1377,9 @@
                     protein: '50g',
                     carbs: '45g',
                     rawIngredients: [
-                        { name: 'sirloin steak', amount: 1, unit: '' },
-                        { name: 'sweet potato', amount: 1, unit: 'small' },
-                        { name: 'broccoli', amount: 1, unit: 'cup' },
+                        { name: 'sirloin steak', amount: 8, unit: 'oz' },
+                        { name: 'sweet potato', amount: 6, unit: 'oz' },
+                        { name: 'broccoli', amount: 4, unit: 'oz' },
                         { name: 'butter', amount: 1, unit: 'tbsp' }
                     ]
                 },
@@ -1357,11 +1392,11 @@
                     protein: '20g',
                     carbs: '40g',
                     rawIngredients: [
-                        { name: 'firm tofu', amount: 0.5, unit: 'block' },
-                        { name: 'mixed vegetables', amount: 2, unit: 'cups' },
+                        { name: 'firm tofu', amount: 4, unit: 'oz' },
+                        { name: 'mixed vegetables', amount: 6, unit: 'oz' },
                         { name: 'soy sauce', amount: 2, unit: 'tbsp' },
                         { name: 'sesame oil', amount: 1, unit: 'tbsp' },
-                        { name: 'brown rice', amount: 0.5, unit: 'cup' }
+                        { name: 'brown rice', amount: 2, unit: 'oz' }
                     ]
                 },
                 // Snack meals
@@ -1374,9 +1409,9 @@
                     protein: '15g',
                     carbs: '20g',
                     rawIngredients: [
-                        { name: 'Greek yogurt', amount: 0.5, unit: 'cup' },
-                        { name: 'mixed berries', amount: 0.25, unit: 'cup' },
-                        { name: 'almonds', amount: 0.25, unit: 'cup' }
+                        { name: 'Greek yogurt', amount: 4, unit: 'oz' },
+                        { name: 'mixed berries', amount: 2, unit: 'oz' },
+                        { name: 'almonds', amount: 0.5, unit: 'oz' }
                     ]
                 },
                 {
@@ -1388,9 +1423,9 @@
                     protein: '5g',
                     carbs: '20g',
                     rawIngredients: [
-                        { name: 'hummus', amount: 0.25, unit: 'cup' },
-                        { name: 'carrot sticks', amount: 0.5, unit: 'cup' },
-                        { name: 'celery sticks', amount: 0.5, unit: 'cup' }
+                        { name: 'hummus', amount: 2, unit: 'oz' },
+                        { name: 'carrot sticks', amount: 2, unit: 'oz' },
+                        { name: 'celery sticks', amount: 2, unit: 'oz' }
                     ]
                 },
                 {
@@ -1424,11 +1459,13 @@
                     const dayMeals = [];
                     selectedMealTypes.forEach(type => {
                         const availableMeals = mealsByType[type];
-                        const randomIndex = Math.floor(Math.random() * availableMeals.length);
-                        dayMeals.push({
-                            ...availableMeals[randomIndex],
-                            day: i + 1
-                        });
+                        if (availableMeals && availableMeals.length > 0) {
+                            const randomIndex = Math.floor(Math.random() * availableMeals.length);
+                            dayMeals.push({
+                                ...availableMeals[randomIndex],
+                                day: i + 1
+                            });
+                        }
                     });
                     dailyMeals.push(dayMeals);
                 }
@@ -1443,6 +1480,7 @@
                 mealPlanElement.style.display = 'none';
                 defaultMessage.style.display = 'none';
                 generateGroceryElement.style.display = 'none';
+                downloadMealPlanPdfElement.style.display = 'none';
                 
                 // Gather all form data
                 const formData = {
@@ -1485,8 +1523,9 @@
                         displaySampleMealPlan(formData, false);
                     }
                     
-                    // Show the generate grocery list button
+                    // Show the generate grocery list and PDF buttons
                     generateGroceryElement.style.display = 'block';
+                    downloadMealPlanPdfElement.style.display = 'block';
                 }, 1000);
             });
             
@@ -1653,6 +1692,125 @@
                 // Show the grocery list modal
                 document.getElementById('grocery-list-content').innerHTML = groceryHTML;
                 groceryListModal.style.display = 'flex';
+            }
+            
+            // Generate PDF of the grocery list
+            function generateGroceryPdf() {
+                const doc = new jsPDF();
+                const groceryContent = document.getElementById('grocery-list-content');
+                
+                // Add title
+                doc.setFontSize(18);
+                doc.text('Grocery List', 105, 15, { align: 'center' });
+                
+                // Get all categories and items
+                const categories = groceryContent.querySelectorAll('.grocery-category');
+                
+                let yPosition = 30;
+                
+                categories.forEach(category => {
+                    const categoryName = category.textContent;
+                    const items = category.nextElementSibling.querySelectorAll('li');
+                    
+                    // Add category header
+                    doc.setFontSize(14);
+                    doc.setTextColor(94, 53, 177); // Primary color
+                    doc.text(categoryName, 14, yPosition);
+                    yPosition += 8;
+                    
+                    // Add items
+                    doc.setFontSize(12);
+                    doc.setTextColor(0, 0, 0); // Black
+                    
+                    items.forEach(item => {
+                        if (yPosition > 270) {
+                            doc.addPage();
+                            yPosition = 20;
+                        }
+                        doc.text('- ' + item.textContent, 20, yPosition);
+                        yPosition += 8;
+                    });
+                    
+                    yPosition += 5; // Add some space between categories
+                });
+                
+                // Save the PDF
+                const userName = document.getElementById('user-name').value.trim() || 'MealPlan';
+                doc.save(`${userName}_GroceryList.pdf`);
+            }
+            
+            // Generate PDF of the meal plan
+            function generateMealPlanPdf() {
+                const doc = new jsPDF();
+                const mealPlan = document.getElementById('meal-plan');
+                const days = mealPlan.querySelectorAll('.day');
+                
+                // Add title
+                doc.setFontSize(18);
+                doc.text('Meal Plan', 105, 15, { align: 'center' });
+                
+                let yPosition = 30;
+                
+                days.forEach(day => {
+                    const dayHeader = day.querySelector('.day-header').textContent;
+                    const meals = day.querySelectorAll('.meal');
+                    
+                    // Add day header
+                    doc.setFontSize(14);
+                    doc.setTextColor(94, 53, 177); // Primary color
+                    doc.text(dayHeader, 14, yPosition);
+                    yPosition += 8;
+                    
+                    // Add meals
+                    meals.forEach(meal => {
+                        if (yPosition > 270) {
+                            doc.addPage();
+                            yPosition = 20;
+                        }
+                        
+                        const mealType = meal.querySelector('.meal-type').textContent;
+                        const mealTime = meal.querySelector('.meal-time').textContent;
+                        const mealName = meal.querySelector('.meal-name').textContent;
+                        const mealDesc = meal.querySelector('.meal-description').textContent;
+                        
+                        doc.setFontSize(12);
+                        doc.setTextColor(0, 0, 0); // Black
+                        
+                        // Add meal type and time
+                        doc.setFont(undefined, 'bold');
+                        doc.text(`${mealType} (${mealTime})`, 14, yPosition);
+                        yPosition += 7;
+                        
+                        // Add meal name
+                        doc.setFont(undefined, 'bold');
+                        doc.text(mealName, 20, yPosition);
+                        yPosition += 7;
+                        
+                        // Add meal description
+                        doc.setFont(undefined, 'normal');
+                        doc.text(mealDesc, 20, yPosition, { maxWidth: 180 });
+                        yPosition += 10;
+                        
+                        // Add nutrition info
+                        const nutritionItems = meal.querySelectorAll('.nutrition-item');
+                        let nutritionText = '';
+                        nutritionItems.forEach((item, index) => {
+                            nutritionText += item.textContent.trim();
+                            if (index < nutritionItems.length - 1) {
+                                nutritionText += ' | ';
+                            }
+                        });
+                        
+                        doc.text(nutritionText, 20, yPosition);
+                        yPosition += 15;
+                    });
+                    
+                    yPosition += 5; // Add space between days
+                });
+                
+                // Save the PDF
+                const userName = document.getElementById('user-name').value.trim() || 'MealPlan';
+                doc.save(`${userName}_MealPlan.pdf`);
             }
             
             // Make these functions available globally
