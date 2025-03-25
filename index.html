@@ -7,9 +7,242 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Previous CSS styles remain the same */
+        :root {
+            --primary: #5E35B1;
+            --primary-light: #7E57C2;
+            --secondary: #43A047;
+            --danger: #E53935;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-300: #D1D5DB;
+            --gray-700: #374151;
+            --gray-900: #111827;
+        }
         
-        /* Update meal header styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--gray-900);
+            background-color: #f9fafb;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-icon {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-right: 0.75rem;
+        }
+        
+        .logo-text {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .logo-subtext {
+            font-size: 0.9rem;
+            color: var(--gray-700);
+            margin-left: 0.5rem;
+            font-weight: 400;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .settings-btn {
+            background: none;
+            border: none;
+            color: var(--gray-700);
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: color 0.2s;
+        }
+        
+        .settings-btn:hover {
+            color: var(--primary);
+        }
+        
+        .planner-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .planner-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .settings-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .results-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--gray-900);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--gray-700);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(94, 53, 177, 0.1);
+        }
+        
+        .checkbox-group {
+            margin-top: 0.5rem;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .checkbox-item input {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .api-key-note {
+            font-size: 0.875rem;
+            color: var(--gray-700);
+            margin-top: 0.5rem;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .meal-plan {
+            display: none;
+        }
+        
+        .day {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--gray-200);
+            padding-bottom: 1.5rem;
+        }
+        
+        .day:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .day-header {
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .meal {
+            margin-bottom: 1.5rem;
+            background: var(--gray-100);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .meal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
         .meal-header {
             display: flex;
             flex-direction: column;
@@ -28,139 +261,973 @@
             font-size: 0.875rem;
         }
         
-        /* Keep all other existing styles the same */
+        .meal-name {
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+        
+        .meal-description {
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+        
+        .meal-nutrition {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+        
+        .nutrition-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .nutrition-item span:first-child {
+            font-weight: 500;
+            margin-right: 0.25rem;
+        }
+        
+        .error-message {
+            color: var(--danger);
+            text-align: center;
+            padding: 1rem;
+            display: none;
+        }
+        
+        .advanced-options {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray-200);
+        }
+        
+        .toggle-advanced {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0;
+            width: auto;
+            display: flex;
+            align-items: center;
+        }
+        
+        .toggle-advanced svg {
+            margin-left: 0.5rem;
+            transition: transform 0.2s;
+        }
+        
+        .advanced-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .advanced-content.show {
+            max-height: 1000px;
+        }
+        
+        .rotate {
+            transform: rotate(180deg);
+        }
+        
+        .medication-warning {
+            font-size: 0.875rem;
+            color: var(--danger);
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-700);
+        }
+        
+        .modal-footer {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        
+        .modal-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .modal-btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+        }
+        
+        .modal-btn-secondary {
+            background-color: white;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+        
+        .api-status {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .api-status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .api-status-active {
+            background-color: var(--secondary);
+        }
+        
+        .api-status-inactive {
+            background-color: var(--gray-300);
+        }
+        
+        /* Recipe Detail Modal */
+        .recipe-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem 0;
+            overflow-y: auto;
+        }
+        
+        .recipe-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            margin: 0 auto;
+        }
+        
+        .recipe-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        
+        .recipe-title-container {
+            flex: 1;
+        }
+        
+        .recipe-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .recipe-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+        
+        .recipe-section {
+            margin-bottom: 2rem;
+        }
+        
+        .recipe-section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .nutrition-card {
+            background: var(--gray-100);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .nutrition-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .nutrition-label {
+            font-size: 0.75rem;
+            color: var(--gray-700);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .ingredients-list {
+            list-style-type: none;
+        }
+        
+        .ingredients-list li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .ingredients-list li:before {
+            content: "•";
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+        }
+        
+        .instructions-list {
+            list-style-type: decimal;
+            padding-left: 1.5rem;
+        }
+        
+        .instructions-list li {
+            margin-bottom: 0.75rem;
+        }
+        
+        .recipe-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray-200);
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+        
+        .allergy-warning {
+            color: var(--danger);
+            font-weight: 500;
+        }
+        
+        .medication-note {
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        /* Servings selector */
+        .servings-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .servings-selector select {
+            width: auto;
+            padding: 0.5rem;
+            border-radius: 6px;
+        }
+        
+        .servings-label {
+            font-weight: 500;
+            color: var(--gray-700);
+        }
     </style>
 </head>
 <body>
-    <!-- Previous HTML remains the same until the JavaScript -->
-    
-    <script>
-        // Previous JavaScript remains the same until the displaySampleMealPlan function
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <i class="fas fa-prescription-bottle-alt logo-icon"></i>
+                <div>
+                    <span class="logo-text">MetabolicRx</span>
+                    <span class="logo-subtext">NutritionAI</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="settings-btn" id="settings-btn">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </header>
         
-        function displaySampleMealPlan(formData, apiActive) {
-            // This is just sample data for demonstration
-            // In a real app, you would use the actual API response
-            
-            let mealPlanHTML = '';
-            
-            const days = parseInt(formData.days);
-            const hasBreakfast = formData.meals.breakfast;
-            const hasLunch = formData.meals.lunch;
-            const hasDinner = formData.meals.dinner;
-            const hasSnacks = formData.meals.snacks;
-            const allergies = formData.allergies;
-            const medication = formData.medication;
-            
-            if (apiActive) {
-                mealPlanHTML += '<div style="margin-bottom: 1rem; color: var(--secondary); font-size: 0.875rem;"><i class="fas fa-check-circle"></i> Powered by Google AI</div>';
-            }
-            
-            // Define meal templates with times
-            const mealTemplates = [
-                {
-                    type: 'breakfast',
-                    name: 'Avocado and Spinach Omelet with Whole Grain Toast',
-                    time: '8:00 AM',
-                    description: 'Fluffy omelet packed with healthy fats and fiber',
-                    calories: '450',
-                    protein: '22g',
-                    carbs: '35g',
-                    show: hasBreakfast
-                },
-                {
-                    type: 'lunch',
-                    name: 'Grilled Chicken Salad with Balsamic Vinaigrette',
-                    time: '12:30 PM',
-                    description: 'Protein-rich salad with mixed greens and light dressing',
-                    calories: '550',
-                    protein: '40g',
-                    carbs: '20g',
-                    show: hasLunch
-                },
-                {
-                    type: 'snack',
-                    name: 'Greek Yogurt with Mixed Berries and Almonds',
-                    time: '3:00 PM',
-                    description: 'Protein-packed snack with antioxidants',
-                    calories: '250',
-                    protein: '15g',
-                    carbs: '20g',
-                    show: hasSnacks
-                },
-                {
-                    type: 'dinner',
-                    name: 'Baked Salmon with Quinoa and Roasted Asparagus',
-                    time: '6:30 PM',
-                    description: 'Heart-healthy omega-3s with complex carbs',
-                    calories: '600',
-                    protein: '45g',
-                    carbs: '40g',
-                    show: hasDinner
-                }
-            ];
-            
-            for (let i = 1; i <= days; i++) {
-                const dayName = new Date(Date.now() + (i * 24 * 60 * 60 * 1000)).toLocaleDateString('en-US', { weekday: 'long' });
+        <div class="planner-container">
+            <div class="settings-panel">
+                <h2>Meal Preferences</h2>
                 
-                mealPlanHTML += `
-                    <div class="day">
-                        <div class="day-header">Day ${i}: ${dayName}</div>
-                `;
+                <div class="form-group">
+                    <label for="diet-type">Diet Type</label>
+                    <select id="diet-type">
+                        <option value="balanced">Balanced</option>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="vegan">Vegan</option>
+                        <option value="keto">Keto</option>
+                        <option value="paleo">Paleo</option>
+                        <option value="mediterranean">Mediterranean</option>
+                        <option value="low-carb">Low Carb</option>
+                        <option value="low-fat">Low Fat</option>
+                        <option value="high-protein">High Protein</option>
+                    </select>
+                </div>
                 
-                // Filter and sort meals by time
-                const mealsToShow = mealTemplates
-                    .filter(meal => meal.show)
-                    .sort((a, b) => {
-                        // Convert times to 24-hour format for sorting
-                        const timeA = convertTo24Hour(a.time);
-                        const timeB = convertTo24Hour(b.time);
-                        return timeA - timeB;
-                    });
+                <div class="form-group">
+                    <label for="calories">Daily Calorie Target</label>
+                    <input type="number" id="calories" placeholder="e.g. 2000" min="1000" max="5000">
+                </div>
                 
-                // Add meals in chronological order
-                mealsToShow.forEach(meal => {
-                    mealPlanHTML += `
-                        <div class="meal" onclick="showRecipeDetail('${meal.name}', ${i}, '${meal.type}', '${allergies}', '${medication}')">
-                            <div class="meal-header">
-                                <div class="meal-type">${meal.type}</div>
-                                <div class="meal-time">${meal.time}</div>
-                            </div>
-                            <div class="meal-name">${meal.name}</div>
-                            <div class="meal-description">
-                                ${meal.description}${allergies ? ' (Allergy-aware)' : ''}${medication !== 'none' ? ' (Medication-adjusted)' : ''}
-                            </div>
-                            <div class="meal-nutrition">
-                                <div class="nutrition-item"><span>Calories:</span> <span>${meal.calories}</span></div>
-                                <div class="nutrition-item"><span>Protein:</span> <span>${meal.protein}</span></div>
-                                <div class="nutrition-item"><span>Carbs:</span> <span>${meal.carbs}</span></div>
+                <div class="form-group">
+                    <label for="days">Number of Days</label>
+                    <select id="days">
+                        <option value="1">1 day</option>
+                        <option value="3">3 days</option>
+                        <option value="5">5 days</option>
+                        <option value="7" selected>7 days</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Meals Per Day</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="breakfast" checked>
+                            <label for="breakfast">Breakfast</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="lunch" checked>
+                            <label for="lunch">Lunch</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="dinner" checked>
+                            <label for="dinner">Dinner</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="snacks">
+                            <label for="snacks">Snacks</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="allergies">Food Allergies/Intolerances (comma separated)</label>
+                    <input type="text" id="allergies" placeholder="e.g. peanuts, shellfish, dairy">
+                </div>
+                
+                <div class="form-group">
+                    <label for="dislikes">Foods You Dislike (comma separated)</label>
+                    <input type="text" id="dislikes" placeholder="e.g. olives, mushrooms, tofu">
+                </div>
+                
+                <button id="toggle-advanced" class="toggle-advanced">
+                    Advanced Options
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                
+                <div class="advanced-options">
+                    <div class="advanced-content">
+                        <div class="form-group">
+                            <label for="medication">Medication Considerations</label>
+                            <select id="medication">
+                                <option value="none">None</option>
+                                <option value="glp1">GLP-1 Agonists (Ozempic, Wegovy, etc.)</option>
+                                <option value="warfarin">Warfarin (Coumadin)</option>
+                                <option value="maoi">MAO Inhibitors</option>
+                                <option value="diuretics">Diuretics</option>
+                                <option value="insulin">Insulin</option>
+                                <option value="thyroid">Thyroid Medication</option>
+                            </select>
+                            <div class="medication-warning" id="medication-warning">
+                                Note: Always consult with your healthcare provider about dietary changes while on medication.
                             </div>
                         </div>
-                    `;
-                });
+                        
+                        <div class="form-group">
+                            <label for="health-goals">Specific Health Goals</label>
+                            <input type="text" id="health-goals" placeholder="e.g. lower cholesterol, manage blood sugar">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cooking-time">Max Cooking Time Per Meal (minutes)</label>
+                            <input type="number" id="cooking-time" placeholder="e.g. 30" min="5" max="240">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="equipment">Available Cooking Equipment (comma separated)</label>
+                            <input type="text" id="equipment" placeholder="e.g. oven, blender, air fryer">
+                        </div>
+                    </div>
+                </div>
                 
-                mealPlanHTML += `</div>`;
+                <button id="generate-plan">Generate Meal Plan</button>
+            </div>
+            
+            <div class="results-panel">
+                <h2>Your Personalized Meal Plan</h2>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Generating your personalized meal plan...</p>
+                </div>
+                
+                <div class="error-message" id="error-message">
+                    There was an error generating your meal plan. Please try again.
+                </div>
+                
+                <div class="meal-plan" id="meal-plan">
+                    <!-- Generated content will go here -->
+                </div>
+                
+                <div id="default-message">
+                    <p>Your personalized meal plan will appear here after you click "Generate Meal Plan".</p>
+                    <p>We'll take into account your dietary preferences, allergies, and any medication considerations to create a plan that works for you.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">API Settings</h3>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="modal-api-key">Google AI API Key</label>
+                <input type="password" id="modal-api-key" placeholder="Enter your API key for enhanced results">
+                <div class="api-status" id="api-status">
+                    <div class="api-status-indicator api-status-inactive"></div>
+                    <span>API not configured</span>
+                </div>
+                <p class="api-key-note">Using an API key enables advanced AI-powered meal planning features.</p>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-secondary" id="cancel-settings">Cancel</button>
+                <button class="modal-btn modal-btn-primary" id="save-settings">Save Settings</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recipe Detail Modal -->
+    <div class="recipe-modal" id="recipe-modal">
+        <div class="recipe-content">
+            <div class="recipe-header">
+                <div class="recipe-title-container">
+                    <h1 class="recipe-title" id="recipe-title">Avocado and Spinach Omelet with Whole Grain Toast</h1>
+                    <div class="recipe-meta">
+                        <div><strong>Prep Time:</strong> <span id="prep-time">10 mins</span></div>
+                        <div><strong>Cook Time:</strong> <span id="cook-time">15 mins</span></div>
+                        <div><strong>Total Time:</strong> <span id="total-time">25 mins</span></div>
+                    </div>
+                </div>
+                <div class="servings-selector">
+                    <span class="servings-label">Servings:</span>
+                    <select id="servings-select">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="recipe-section">
+                <h2 class="recipe-section-title">Nutrition Information (per serving)</h2>
+                <div class="nutrition-grid">
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="calories-value">450</div>
+                        <div class="nutrition-label">Calories</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="protein-value">22g</div>
+                        <div class="nutrition-label">Protein</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="carbs-value">35g</div>
+                        <div class="nutrition-label">Carbs</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="fat-value">25g</div>
+                        <div class="nutrition-label">Fat</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="fiber-value">8g</div>
+                        <div class="nutrition-label">Fiber</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="sugar-value">3g</div>
+                        <div class="nutrition-label">Sugar</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="sodium-value">450mg</div>
+                        <div class="nutrition-label">Sodium</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="cholesterol-value">370mg</div>
+                        <div class="nutrition-label">Cholesterol</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recipe-section">
+                <h2 class="recipe-section-title">Ingredients</h2>
+                <ul class="ingredients-list" id="ingredients-list">
+                    <li data-base-amount="2">2 large eggs</li>
+                    <li data-base-amount="0.25">1/4 cup fresh spinach, chopped</li>
+                    <li data-base-amount="0.25">1/4 avocado, sliced</li>
+                    <li data-base-amount="1">1 slice whole grain bread</li>
+                    <li data-base-amount="1">1 tsp olive oil</li>
+                    <li>Salt and pepper to taste</li>
+                </ul>
+            </div>
+            
+            <div class="recipe-section">
+                <h2 class="recipe-section-title">Instructions</h2>
+                <ol class="instructions-list" id="instructions-list">
+                    <li>Heat olive oil in a non-stick skillet over medium heat.</li>
+                    <li>Whisk eggs in a bowl with a pinch of salt and pepper.</li>
+                    <li>Pour eggs into the skillet and let cook undisturbed for 1 minute.</li>
+                    <li>Sprinkle chopped spinach over one half of the omelet.</li>
+                    <li>When eggs are nearly set, add avocado slices on top of the spinach.</li>
+                    <li>Fold the omelet in half and cook for another 30 seconds.</li>
+                    <li>Toast the whole grain bread until golden brown.</li>
+                    <li>Serve the omelet with the toast on the side.</li>
+                </ol>
+            </div>
+            
+            <div class="recipe-footer">
+                <p id="allergy-note" class="allergy-warning">Allergy Note: Contains eggs</p>
+                <p id="medication-note" class="medication-note">Medication Note: Suitable for GLP-1 Agonists</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle advanced options
+            const toggleAdvanced = document.getElementById('toggle-advanced');
+            const advancedContent = document.querySelector('.advanced-content');
+            const arrowIcon = toggleAdvanced.querySelector('svg');
+            
+            toggleAdvanced.addEventListener('click', function() {
+                advancedContent.classList.toggle('show');
+                arrowIcon.classList.toggle('rotate');
+            });
+            
+            // Show medication warning when relevant medication is selected
+            const medicationSelect = document.getElementById('medication');
+            const medicationWarning = document.getElementById('medication-warning');
+            
+            medicationSelect.addEventListener('change', function() {
+                if (this.value !== 'none') {
+                    medicationWarning.style.display = 'block';
+                } else {
+                    medicationWarning.style.display = 'none';
+                }
+            });
+            
+            // Modal functionality
+            const settingsBtn = document.getElementById('settings-btn');
+            const settingsModal = document.getElementById('settings-modal');
+            const closeModal = document.getElementById('close-modal');
+            const cancelSettings = document.getElementById('cancel-settings');
+            const saveSettings = document.getElementById('save-settings');
+            const modalApiKey = document.getElementById('modal-api-key');
+            const apiStatus = document.getElementById('api-status');
+            
+            // Recipe modal elements
+            const recipeModal = document.getElementById('recipe-modal');
+            const servingsSelect = document.getElementById('servings-select');
+            
+            // Check if API key exists in localStorage
+            if (localStorage.getItem('metabolicrx_api_key')) {
+                modalApiKey.value = localStorage.getItem('metabolicrx_api_key');
+                updateApiStatus(true);
             }
             
-            mealPlanElement.innerHTML = mealPlanHTML;
-            mealPlanElement.style.display = 'block';
-        }
-        
-        function convertTo24Hour(timeStr) {
-            // Helper function to convert "8:00 AM" to 800, "1:30 PM" to 1330, etc.
-            const [time, modifier] = timeStr.split(' ');
-            let [hours, minutes] = time.split(':');
+            settingsBtn.addEventListener('click', function() {
+                settingsModal.style.display = 'flex';
+            });
             
-            if (modifier === 'PM' && hours !== '12') {
-                hours = parseInt(hours, 10) + 12;
-            }
-            if (modifier === 'AM' && hours === '12') {
-                hours = '00';
+            closeModal.addEventListener('click', function() {
+                settingsModal.style.display = 'none';
+            });
+            
+            cancelSettings.addEventListener('click', function() {
+                settingsModal.style.display = 'none';
+            });
+            
+            saveSettings.addEventListener('click', function() {
+                const apiKey = modalApiKey.value.trim();
+                if (apiKey) {
+                    localStorage.setItem('metabolicrx_api_key', apiKey);
+                    updateApiStatus(true);
+                } else {
+                    localStorage.removeItem('metabolicrx_api_key');
+                    updateApiStatus(false);
+                }
+                settingsModal.style.display = 'none';
+            });
+            
+            // Close recipe modal when clicking outside content
+            recipeModal.addEventListener('click', function(e) {
+                if (e.target === recipeModal) {
+                    recipeModal.style.display = 'none';
+                }
+            });
+            
+            // Servings change handler
+            servingsSelect.addEventListener('change', function() {
+                const servings = parseInt(this.value);
+                updateIngredients(servings);
+            });
+            
+            function updateApiStatus(active) {
+                const indicator = apiStatus.querySelector('.api-status-indicator');
+                const text = apiStatus.querySelector('span');
+                
+                if (active) {
+                    indicator.className = 'api-status-indicator api-status-active';
+                    text.textContent = 'API connected';
+                } else {
+                    indicator.className = 'api-status-indicator api-status-inactive';
+                    text.textContent = 'API not configured';
+                }
             }
             
-            return parseInt(hours + minutes, 10);
-        }
-        
-        // Keep all other JavaScript functions the same
+            // Generate meal plan
+            const generateButton = document.getElementById('generate-plan');
+            const loadingElement = document.getElementById('loading');
+            const errorElement = document.getElementById('error-message');
+            const mealPlanElement = document.getElementById('meal-plan');
+            const defaultMessage = document.getElementById('default-message');
+            
+            generateButton.addEventListener('click', function() {
+                // Show loading state
+                loadingElement.style.display = 'block';
+                errorElement.style.display = 'none';
+                mealPlanElement.style.display = 'none';
+                defaultMessage.style.display = 'none';
+                
+                // Gather all form data
+                const formData = {
+                    dietType: document.getElementById('diet-type').value,
+                    calories: document.getElementById('calories').value,
+                    days: document.getElementById('days').value,
+                    meals: {
+                        breakfast: document.getElementById('breakfast').checked,
+                        lunch: document.getElementById('lunch').checked,
+                        dinner: document.getElementById('dinner').checked,
+                        snacks: document.getElementById('snacks').checked
+                    },
+                    allergies: document.getElementById('allergies').value,
+                    dislikes: document.getElementById('dislikes').value,
+                    medication: document.getElementById('medication').value,
+                    healthGoals: document.getElementById('health-goals').value,
+                    cookingTime: document.getElementById('cooking-time').value,
+                    equipment: document.getElementById('equipment').value,
+                    apiKey: localStorage.getItem('metabolicrx_api_key') || ''
+                };
+                
+                // Simulate API call with timeout
+                setTimeout(function() {
+                    loadingElement.style.display = 'none';
+                    
+                    // For demo purposes, we'll just show sample data
+                    // In a real app, you would call the Google AI API here
+                    if (formData.apiKey) {
+                        // This is where you would integrate with Google's AI API
+                        // For now, we'll just show sample data with an API indicator
+                        displaySampleMealPlan(formData, true);
+                    } else {
+                        displaySampleMealPlan(formData, false);
+                    }
+                }, 2000);
+            });
+            
+            function displaySampleMealPlan(formData, apiActive) {
+                // Define meal templates with times
+                const mealTemplates = [
+                    {
+                        type: 'breakfast',
+                        name: 'Avocado and Spinach Omelet with Whole Grain Toast',
+                        time: '8:00 AM',
+                        description: 'Fluffy omelet packed with healthy fats and fiber',
+                        calories: '450',
+                        protein: '22g',
+                        carbs: '35g',
+                        show: formData.meals.breakfast
+                    },
+                    {
+                        type: 'lunch',
+                        name: 'Grilled Chicken Salad with Balsamic Vinaigrette',
+                        time: '12:30 PM',
+                        description: 'Protein-rich salad with mixed greens and light dressing',
+                        calories: '550',
+                        protein: '40g',
+                        carbs: '20g',
+                        show: formData.meals.lunch
+                    },
+                    {
+                        type: 'snack',
+                        name: 'Greek Yogurt with Mixed Berries and Almonds',
+                        time: '3:00 PM',
+                        description: 'Protein-packed snack with antioxidants',
+                        calories: '250',
+                        protein: '15g',
+                        carbs: '20g',
+                        show: formData.meals.snacks
+                    },
+                    {
+                        type: 'dinner',
+                        name: 'Baked Salmon with Quinoa and Roasted Asparagus',
+                        time: '6:30 PM',
+                        description: 'Heart-healthy omega-3s with complex carbs',
+                        calories: '600',
+                        protein: '45g',
+                        carbs: '40g',
+                        show: formData.meals.dinner
+                    }
+                ];
+                
+                let mealPlanHTML = '';
+                const days = parseInt(formData.days);
+                
+                if (apiActive) {
+                    mealPlanHTML += '<div style="margin-bottom: 1rem; color: var(--secondary); font-size: 0.875rem;"><i class="fas fa-check-circle"></i> Powered by Google AI</div>';
+                }
+                
+                for (let i = 1; i <= days; i++) {
+                    const dayName = new Date(Date.now() + (i * 24 * 60 * 60 * 1000)).toLocaleDateString('en-US', { weekday: 'long' });
+                    
+                    mealPlanHTML += `
+                        <div class="day">
+                            <div class="day-header">Day ${i}: ${dayName}</div>
+                    `;
+                    
+                    // Filter and sort meals by time
+                    const mealsToShow = mealTemplates
+                        .filter(meal => meal.show)
+                        .sort((a, b) => {
+                            // Convert times to 24-hour format for sorting
+                            const timeA = convertTo24Hour(a.time);
+                            const timeB = convertTo24Hour(b.time);
+                            return timeA - timeB;
+                        });
+                    
+                    // Add meals in chronological order
+                    mealsToShow.forEach(meal => {
+                        mealPlanHTML += `
+                            <div class="meal" onclick="showRecipeDetail('${meal.name}', ${i}, '${meal.type}', '${formData.allergies}', '${formData.medication}')">
+                                <div class="meal-header">
+                                    <div class="meal-type">${meal.type}</div>
+                                    <div class="meal-time">${meal.time}</div>
+                                </div>
+                                <div class="meal-name">${meal.name}</div>
+                                <div class="meal-description">
+                                    ${meal.description}${formData.allergies ? ' (Allergy-aware)' : ''}${formData.medication !== 'none' ? ' (Medication-adjusted)' : ''}
+                                </div>
+                                <div class="meal-nutrition">
+                                    <div class="nutrition-item"><span>Calories:</span> <span>${meal.calories}</span></div>
+                                    <div class="nutrition-item"><span>Protein:</span> <span>${meal.protein}</span></div>
+                                    <div class="nutrition-item"><span>Carbs:</span> <span>${meal.carbs}</span></div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    mealPlanHTML += `</div>`;
+                }
+                
+                mealPlanElement.innerHTML = mealPlanHTML;
+                mealPlanElement.style.display = 'block';
+            }
+            
+            function convertTo24Hour(timeStr) {
+                // Helper function to convert "8:00 AM" to 800, "1:30 PM" to 1330, etc.
+                const [time, modifier] = timeStr.split(' ');
+                let [hours, minutes] = time.split(':');
+                
+                if (modifier === 'PM' && hours !== '12') {
+                    hours = parseInt(hours, 10) + 12;
+                }
+                if (modifier === 'AM' && hours === '12') {
+                    hours = '00';
+                }
+                
+                return parseInt(hours + minutes, 10);
+            }
+            
+            // Make this function available globally
+            window.showRecipeDetail = function(recipeName, dayNumber, mealType, allergies, medication) {
+                const recipeModal = document.getElementById('recipe-modal');
+                const recipeTitle = document.getElementById('recipe-title');
+                const allergyNote = document.getElementById('allergy-note');
+                const medicationNote = document.getElementById('medication-note');
+                const servingsSelect = document.getElementById('servings-select');
+                
+                // Set recipe title
+                recipeTitle.textContent = recipeName;
+                
+                // Set allergy note if applicable
+                if (allergies && allergies.trim() !== '') {
+                    allergyNote.textContent = `Allergy Note: Free from ${allergies}`;
+                    allergyNote.style.display = 'block';
+                } else {
+                    allergyNote.style.display = 'none';
+                }
+                
+                // Set medication note if applicable
+                if (medication && medication !== 'none') {
+                    let medText = '';
+                    switch(medication) {
+                        case 'glp1':
+                            medText = 'Portion-controlled for GLP-1 Agonists';
+                            break;
+                        case 'warfarin':
+                            medText = 'Vitamin K consistent for Warfarin';
+                            break;
+                        case 'maoi':
+                            medText = 'Tyramine-controlled for MAO Inhibitors';
+                            break;
+                        default:
+                            medText = `Adjusted for ${medication}`;
+                    }
+                    medicationNote.textContent = `Medication Note: ${medText}`;
+                    medicationNote.style.display = 'block';
+                } else {
+                    medicationNote.style.display = 'none';
+                }
+                
+                // Reset servings to 1 when opening a new recipe
+                servingsSelect.value = '1';
+                updateIngredients(1);
+                
+                // Show the modal
+                recipeModal.style.display = 'flex';
+            };
+            
+            function updateIngredients(servings) {
+                const ingredientsList = document.getElementById('ingredients-list');
+                const ingredients = ingredientsList.querySelectorAll('li[data-base-amount]');
+                
+                ingredients.forEach(ingredient => {
+                    const baseAmount = parseFloat(ingredient.getAttribute('data-base-amount'));
+                    let newAmount = baseAmount * servings;
+                    let displayAmount = '';
+                    
+                    // Format the amount nicely for display
+                    if (newAmount % 1 === 0) {
+                        displayAmount = newAmount.toString();
+                    } else {
+                        // Convert decimals to fractions for better readability
+                        const fraction = convertToFraction(newAmount % 1);
+                        const whole = Math.floor(newAmount);
+                        
+                        if (whole > 0) {
+                            displayAmount = `${whole} ${fraction}`;
+                        } else {
+                            displayAmount = fraction;
+                        }
+                    }
+                    
+                    // Update the displayed amount
+                    const textParts = ingredient.textContent.split(' ');
+                    textParts[0] = displayAmount;
+                    ingredient.textContent = textParts.join(' ');
+                });
+            }
+            
+            function convertToFraction(decimal) {
+                // Common fractions for cooking measurements
+                const fractions = [
+                    {value: 0.125, text: '1/8'},
+                    {value: 0.25, text: '1/4'},
+                    {value: 0.333, text: '1/3'},
+                    {value: 0.5, text: '1/2'},
+                    {value: 0.666, text: '2/3'},
+                    {value: 0.75, text: '3/4'}
+                ];
+                
+                // Find the closest matching fraction
+                let closestFraction = fractions[0];
+                let smallestDiff = Math.abs(decimal - fractions[0].value);
+                
+                for (let i = 1; i < fractions.length; i++) {
+                    const diff = Math.abs(decimal - fractions[i].value);
+                    if (diff < smallestDiff) {
+                        smallestDiff = diff;
+                        closestFraction = fractions[i];
+                    }
+                }
+                
+                // Only use fraction if it's close enough
+                return smallestDiff < 0.1 ? closestFraction.text : decimal.toFixed(2);
+            }
+        });
     </script>
 </body>
 </html>
