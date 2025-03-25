@@ -172,11 +172,20 @@
             font-weight: 500;
             cursor: pointer;
             transition: background-color 0.2s;
-            width: 100%;
         }
         
         button:hover {
             background-color: var(--primary-light);
+        }
+        
+        .full-width-btn {
+            width: 100%;
+        }
+        
+        .narrow-btn {
+            width: auto;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
         }
         
         .api-key-note {
@@ -234,7 +243,7 @@
             background: var(--gray-100);
             border-radius: 8px;
             padding: 1rem;
-            cursor: pointer;
+            position: relative;
             transition: transform 0.2s, box-shadow 0.2s;
         }
         
@@ -245,7 +254,8 @@
         
         .meal-header {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 0.5rem;
         }
         
@@ -588,6 +598,147 @@
             font-weight: 500;
             color: var(--gray-700);
         }
+        
+        /* Replace meal button */
+        .replace-meal-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .replace-meal-btn:hover {
+            background-color: rgba(94, 53, 177, 0.1);
+        }
+        
+        /* Grocery list modal */
+        .grocery-list-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .grocery-list-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .grocery-list-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--gray-900);
+        }
+        
+        .grocery-list {
+            list-style-type: none;
+            margin-bottom: 1.5rem;
+        }
+        
+        .grocery-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .grocery-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .grocery-category {
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .print-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+        
+        .print-btn:hover {
+            background-color: var(--primary-light);
+        }
+        
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .grocery-list-content, .grocery-list-content * {
+                visibility: visible;
+            }
+            .grocery-list-content {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                max-width: 100%;
+                height: auto;
+                box-shadow: none;
+                padding: 1rem;
+            }
+            .print-btn {
+                display: none;
+            }
+        }
+        
+        /* Servings modal */
+        .servings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .servings-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .servings-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--gray-900);
+        }
     </style>
 </head>
 <body>
@@ -638,6 +789,7 @@
                         <option value="3">3 days</option>
                         <option value="5">5 days</option>
                         <option value="7" selected>7 days</option>
+                        <option value="14">14 days</option>
                     </select>
                 </div>
                 
@@ -715,7 +867,7 @@
                     </div>
                 </div>
                 
-                <button id="generate-plan">Generate Meal Plan</button>
+                <button id="generate-plan" class="full-width-btn">Generate Meal Plan</button>
             </div>
             
             <div class="results-panel">
@@ -738,6 +890,8 @@
                     <p>Your personalized meal plan will appear here after you click "Generate Meal Plan".</p>
                     <p>We'll take into account your dietary preferences, allergies, and any medication considerations to create a plan that works for you.</p>
                 </div>
+                
+                <button id="generate-grocery" class="full-width-btn" style="margin-top: 2rem; display: none;">Generate Grocery List</button>
             </div>
         </div>
     </div>
@@ -865,6 +1019,35 @@
         </div>
     </div>
     
+    <!-- Grocery List Modal -->
+    <div class="grocery-list-modal" id="grocery-list-modal">
+        <div class="grocery-list-content">
+            <h2 class="grocery-list-title">Your Grocery List</h2>
+            <div id="grocery-list-content">
+                <!-- Grocery list will be generated here -->
+            </div>
+            <button class="print-btn" id="print-grocery-list">Print Grocery List</button>
+        </div>
+    </div>
+    
+    <!-- Servings Modal -->
+    <div class="servings-modal" id="servings-modal">
+        <div class="servings-content">
+            <h2 class="servings-title">How many people are you shopping for?</h2>
+            <div class="form-group">
+                <select id="servings-count" class="full-width-btn">
+                    <option value="1">1 person</option>
+                    <option value="2">2 people</option>
+                    <option value="3">3 people</option>
+                    <option value="4">4 people</option>
+                    <option value="5">5 people</option>
+                    <option value="6">6 people</option>
+                </select>
+            </div>
+            <button id="generate-grocery-final" class="full-width-btn">Generate Grocery List</button>
+        </div>
+    </div>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Toggle advanced options
@@ -901,6 +1084,14 @@
             // Recipe modal elements
             const recipeModal = document.getElementById('recipe-modal');
             const servingsSelect = document.getElementById('servings-select');
+            
+            // Grocery list elements
+            const generateGroceryBtn = document.getElementById('generate-grocery');
+            const groceryListModal = document.getElementById('grocery-list-modal');
+            const printGroceryBtn = document.getElementById('print-grocery-list');
+            const servingsModal = document.getElementById('servings-modal');
+            const servingsCountSelect = document.getElementById('servings-count');
+            const generateGroceryFinalBtn = document.getElementById('generate-grocery-final');
             
             // Check if API key exists in localStorage
             if (localStorage.getItem('metabolicrx_api_key')) {
@@ -939,10 +1130,41 @@
                 }
             });
             
+            // Close grocery modal when clicking outside content
+            groceryListModal.addEventListener('click', function(e) {
+                if (e.target === groceryListModal) {
+                    groceryListModal.style.display = 'none';
+                }
+            });
+            
+            // Close servings modal when clicking outside content
+            servingsModal.addEventListener('click', function(e) {
+                if (e.target === servingsModal) {
+                    servingsModal.style.display = 'none';
+                }
+            });
+            
             // Servings change handler
             servingsSelect.addEventListener('change', function() {
                 const servings = parseInt(this.value);
                 updateIngredients(servings);
+            });
+            
+            // Print grocery list
+            printGroceryBtn.addEventListener('click', function() {
+                window.print();
+            });
+            
+            // Generate grocery list button click
+            generateGroceryBtn.addEventListener('click', function() {
+                servingsModal.style.display = 'flex';
+            });
+            
+            // Final generate grocery list with servings
+            generateGroceryFinalBtn.addEventListener('click', function() {
+                const servings = parseInt(servingsCountSelect.value);
+                generateGroceryList(servings);
+                servingsModal.style.display = 'none';
             });
             
             function updateApiStatus(active) {
@@ -964,6 +1186,234 @@
             const errorElement = document.getElementById('error-message');
             const mealPlanElement = document.getElementById('meal-plan');
             const defaultMessage = document.getElementById('default-message');
+            const generateGroceryElement = document.getElementById('generate-grocery');
+            
+            // Meal database with raw ingredient quantities
+            const mealDatabase = [
+                // Breakfast meals
+                {
+                    type: 'breakfast',
+                    name: 'Avocado and Spinach Omelet with Whole Grain Toast',
+                    time: '8:00 AM',
+                    description: 'Fluffy omelet packed with healthy fats and fiber',
+                    calories: '450',
+                    protein: '22g',
+                    carbs: '35g',
+                    rawIngredients: [
+                        { name: 'large eggs', amount: 2, unit: '' },
+                        { name: 'fresh spinach', amount: 0.25, unit: 'cup' },
+                        { name: 'avocado', amount: 0.25, unit: '' },
+                        { name: 'whole grain bread', amount: 1, unit: 'slice' },
+                        { name: 'olive oil', amount: 1, unit: 'tsp' }
+                    ]
+                },
+                {
+                    type: 'breakfast',
+                    name: 'Greek Yogurt Parfait with Granola and Berries',
+                    time: '8:00 AM',
+                    description: 'Creamy yogurt with crunchy granola and fresh berries',
+                    calories: '350',
+                    protein: '18g',
+                    carbs: '45g',
+                    rawIngredients: [
+                        { name: 'Greek yogurt', amount: 1, unit: 'cup' },
+                        { name: 'granola', amount: 0.25, unit: 'cup' },
+                        { name: 'mixed berries', amount: 0.5, unit: 'cup' },
+                        { name: 'honey', amount: 1, unit: 'tsp' }
+                    ]
+                },
+                {
+                    type: 'breakfast',
+                    name: 'Protein Pancakes with Banana and Almond Butter',
+                    time: '8:00 AM',
+                    description: 'Fluffy protein pancakes with natural sweetness',
+                    calories: '500',
+                    protein: '30g',
+                    carbs: '50g',
+                    rawIngredients: [
+                        { name: 'protein pancake mix', amount: 0.5, unit: 'cup' },
+                        { name: 'banana', amount: 0.5, unit: '' },
+                        { name: 'almond butter', amount: 1, unit: 'tbsp' },
+                        { name: 'maple syrup', amount: 1, unit: 'tbsp' }
+                    ]
+                },
+                // Lunch meals
+                {
+                    type: 'lunch',
+                    name: 'Grilled Chicken Salad with Balsamic Vinaigrette',
+                    time: '12:30 PM',
+                    description: 'Protein-rich salad with mixed greens and light dressing',
+                    calories: '550',
+                    protein: '40g',
+                    carbs: '20g',
+                    rawIngredients: [
+                        { name: 'chicken breast', amount: 1, unit: '' },
+                        { name: 'mixed greens', amount: 2, unit: 'cups' },
+                        { name: 'cherry tomatoes', amount: 0.5, unit: 'cup' },
+                        { name: 'cucumber', amount: 0.5, unit: '' },
+                        { name: 'balsamic vinaigrette', amount: 2, unit: 'tbsp' }
+                    ]
+                },
+                {
+                    type: 'lunch',
+                    name: 'Quinoa Bowl with Roasted Vegetables',
+                    time: '12:30 PM',
+                    description: 'Nutrient-dense bowl with plant-based protein',
+                    calories: '500',
+                    protein: '15g',
+                    carbs: '60g',
+                    rawIngredients: [
+                        { name: 'quinoa', amount: 0.5, unit: 'cup' },
+                        { name: 'bell peppers', amount: 1, unit: '' },
+                        { name: 'zucchini', amount: 0.5, unit: '' },
+                        { name: 'olive oil', amount: 1, unit: 'tbsp' },
+                        { name: 'feta cheese', amount: 0.25, unit: 'cup' }
+                    ]
+                },
+                {
+                    type: 'lunch',
+                    name: 'Turkey and Avocado Wrap',
+                    time: '12:30 PM',
+                    description: 'Lean protein wrap with healthy fats',
+                    calories: '450',
+                    protein: '25g',
+                    carbs: '35g',
+                    rawIngredients: [
+                        { name: 'whole wheat tortilla', amount: 1, unit: '' },
+                        { name: 'turkey slices', amount: 3, unit: 'oz' },
+                        { name: 'avocado', amount: 0.25, unit: '' },
+                        { name: 'lettuce', amount: 0.5, unit: 'cup' },
+                        { name: 'tomato', amount: 2, unit: 'slices' }
+                    ]
+                },
+                // Dinner meals
+                {
+                    type: 'dinner',
+                    name: 'Baked Salmon with Quinoa and Roasted Asparagus',
+                    time: '6:30 PM',
+                    description: 'Heart-healthy omega-3s with complex carbs',
+                    calories: '600',
+                    protein: '45g',
+                    carbs: '40g',
+                    rawIngredients: [
+                        { name: 'salmon fillet', amount: 1, unit: '' },
+                        { name: 'quinoa', amount: 0.5, unit: 'cup' },
+                        { name: 'asparagus', amount: 0.5, unit: 'bunch' },
+                        { name: 'lemon', amount: 0.5, unit: '' },
+                        { name: 'olive oil', amount: 1, unit: 'tbsp' }
+                    ]
+                },
+                {
+                    type: 'dinner',
+                    name: 'Grilled Steak with Sweet Potato and Broccoli',
+                    time: '6:30 PM',
+                    description: 'Iron-rich meal with complex carbohydrates',
+                    calories: '650',
+                    protein: '50g',
+                    carbs: '45g',
+                    rawIngredients: [
+                        { name: 'sirloin steak', amount: 1, unit: '' },
+                        { name: 'sweet potato', amount: 1, unit: 'small' },
+                        { name: 'broccoli', amount: 1, unit: 'cup' },
+                        { name: 'butter', amount: 1, unit: 'tbsp' }
+                    ]
+                },
+                {
+                    type: 'dinner',
+                    name: 'Vegetable Stir Fry with Tofu',
+                    time: '6:30 PM',
+                    description: 'Plant-based protein with colorful vegetables',
+                    calories: '500',
+                    protein: '20g',
+                    carbs: '40g',
+                    rawIngredients: [
+                        { name: 'firm tofu', amount: 0.5, unit: 'block' },
+                        { name: 'mixed vegetables', amount: 2, unit: 'cups' },
+                        { name: 'soy sauce', amount: 2, unit: 'tbsp' },
+                        { name: 'sesame oil', amount: 1, unit: 'tbsp' },
+                        { name: 'brown rice', amount: 0.5, unit: 'cup' }
+                    ]
+                },
+                // Snack meals
+                {
+                    type: 'snack',
+                    name: 'Greek Yogurt with Mixed Berries and Almonds',
+                    time: '3:00 PM',
+                    description: 'Protein-packed snack with antioxidants',
+                    calories: '250',
+                    protein: '15g',
+                    carbs: '20g',
+                    rawIngredients: [
+                        { name: 'Greek yogurt', amount: 0.5, unit: 'cup' },
+                        { name: 'mixed berries', amount: 0.25, unit: 'cup' },
+                        { name: 'almonds', amount: 0.25, unit: 'cup' }
+                    ]
+                },
+                {
+                    type: 'snack',
+                    name: 'Hummus with Veggie Sticks',
+                    time: '3:00 PM',
+                    description: 'Fiber-rich snack with plant protein',
+                    calories: '200',
+                    protein: '5g',
+                    carbs: '20g',
+                    rawIngredients: [
+                        { name: 'hummus', amount: 0.25, unit: 'cup' },
+                        { name: 'carrot sticks', amount: 0.5, unit: 'cup' },
+                        { name: 'celery sticks', amount: 0.5, unit: 'cup' }
+                    ]
+                },
+                {
+                    type: 'snack',
+                    name: 'Hard-Boiled Eggs with Whole Grain Crackers',
+                    time: '3:00 PM',
+                    description: 'Portable protein snack',
+                    calories: '200',
+                    protein: '12g',
+                    carbs: '15g',
+                    rawIngredients: [
+                        { name: 'hard-boiled eggs', amount: 2, unit: '' },
+                        { name: 'whole grain crackers', amount: 6, unit: '' }
+                    ]
+                }
+            ];
+            
+            // Generate unique meals for each day
+            function getUniqueMeals(days, mealTypes) {
+                const uniqueMeals = [];
+                const usedMealNames = new Set();
+                const mealsPerDay = mealTypes.filter(type => type.checked).length;
+                const totalMealsNeeded = days * mealsPerDay;
+                
+                // Filter meals by selected types
+                const availableMeals = mealDatabase.filter(meal => {
+                    return mealTypes.some(type => type.id === meal.type && type.checked);
+                });
+                
+                // If we don't have enough unique meals, we'll need to repeat some
+                if (availableMeals.length < totalMealsNeeded) {
+                    // Calculate how many times we need to repeat the meals
+                    const repeatCount = Math.ceil(totalMealsNeeded / availableMeals.length);
+                    
+                    // Create an array with repeated meals
+                    for (let i = 0; i < repeatCount; i++) {
+                        availableMeals.forEach(meal => {
+                            if (uniqueMeals.length < totalMealsNeeded) {
+                                uniqueMeals.push({
+                                    ...meal,
+                                    name: i > 0 ? `${meal.name} (${i + 1})` : meal.name
+                                });
+                            }
+                        });
+                    }
+                } else {
+                    // Shuffle the meals and take what we need
+                    const shuffled = [...availableMeals].sort(() => 0.5 - Math.random());
+                    uniqueMeals.push(...shuffled.slice(0, totalMealsNeeded));
+                }
+                
+                return uniqueMeals;
+            }
             
             generateButton.addEventListener('click', function() {
                 // Show loading state
@@ -971,18 +1421,19 @@
                 errorElement.style.display = 'none';
                 mealPlanElement.style.display = 'none';
                 defaultMessage.style.display = 'none';
+                generateGroceryElement.style.display = 'none';
                 
                 // Gather all form data
                 const formData = {
                     dietType: document.getElementById('diet-type').value,
                     calories: document.getElementById('calories').value,
-                    days: document.getElementById('days').value,
-                    meals: {
-                        breakfast: document.getElementById('breakfast').checked,
-                        lunch: document.getElementById('lunch').checked,
-                        dinner: document.getElementById('dinner').checked,
-                        snacks: document.getElementById('snacks').checked
-                    },
+                    days: parseInt(document.getElementById('days').value),
+                    meals: [
+                        { id: 'breakfast', checked: document.getElementById('breakfast').checked },
+                        { id: 'lunch', checked: document.getElementById('lunch').checked },
+                        { id: 'dinner', checked: document.getElementById('dinner').checked },
+                        { id: 'snacks', checked: document.getElementById('snacks').checked }
+                    ],
                     allergies: document.getElementById('allergies').value,
                     dislikes: document.getElementById('dislikes').value,
                     medication: document.getElementById('medication').value,
@@ -1005,86 +1456,54 @@
                     } else {
                         displaySampleMealPlan(formData, false);
                     }
+                    
+                    // Show the generate grocery list button
+                    generateGroceryElement.style.display = 'block';
                 }, 2000);
             });
             
             function displaySampleMealPlan(formData, apiActive) {
-                // Define meal templates with times
-                const mealTemplates = [
-                    {
-                        type: 'breakfast',
-                        name: 'Avocado and Spinach Omelet with Whole Grain Toast',
-                        time: '8:00 AM',
-                        description: 'Fluffy omelet packed with healthy fats and fiber',
-                        calories: '450',
-                        protein: '22g',
-                        carbs: '35g',
-                        show: formData.meals.breakfast
-                    },
-                    {
-                        type: 'lunch',
-                        name: 'Grilled Chicken Salad with Balsamic Vinaigrette',
-                        time: '12:30 PM',
-                        description: 'Protein-rich salad with mixed greens and light dressing',
-                        calories: '550',
-                        protein: '40g',
-                        carbs: '20g',
-                        show: formData.meals.lunch
-                    },
-                    {
-                        type: 'snack',
-                        name: 'Greek Yogurt with Mixed Berries and Almonds',
-                        time: '3:00 PM',
-                        description: 'Protein-packed snack with antioxidants',
-                        calories: '250',
-                        protein: '15g',
-                        carbs: '20g',
-                        show: formData.meals.snacks
-                    },
-                    {
-                        type: 'dinner',
-                        name: 'Baked Salmon with Quinoa and Roasted Asparagus',
-                        time: '6:30 PM',
-                        description: 'Heart-healthy omega-3s with complex carbs',
-                        calories: '600',
-                        protein: '45g',
-                        carbs: '40g',
-                        show: formData.meals.dinner
-                    }
-                ];
+                // Get unique meals for the selected days and meal types
+                const uniqueMeals = getUniqueMeals(formData.days, formData.meals);
                 
                 let mealPlanHTML = '';
-                const days = parseInt(formData.days);
+                const days = formData.days;
+                const mealsPerDay = formData.meals.filter(m => m.checked).length;
                 
                 if (apiActive) {
                     mealPlanHTML += '<div style="margin-bottom: 1rem; color: var(--secondary); font-size: 0.875rem;"><i class="fas fa-check-circle"></i> Powered by Google AI</div>';
                 }
                 
-                for (let i = 1; i <= days; i++) {
-                    const dayName = new Date(Date.now() + (i * 24 * 60 * 60 * 1000)).toLocaleDateString('en-US', { weekday: 'long' });
+                // Distribute meals across days
+                for (let i = 0; i < days; i++) {
+                    const dayName = new Date(Date.now() + ((i + 1) * 24 * 60 * 60 * 1000)).toLocaleDateString('en-US', { weekday: 'long' });
+                    const dayMeals = uniqueMeals.slice(i * mealsPerDay, (i + 1) * mealsPerDay);
                     
                     mealPlanHTML += `
                         <div class="day">
-                            <div class="day-header">Day ${i}: ${dayName}</div>
+                            <div class="day-header">Day ${i + 1}: ${dayName}</div>
                     `;
                     
-                    // Filter and sort meals by time
-                    const mealsToShow = mealTemplates
-                        .filter(meal => meal.show)
-                        .sort((a, b) => {
-                            // Convert times to 24-hour format for sorting
-                            const timeA = convertTo24Hour(a.time);
-                            const timeB = convertTo24Hour(b.time);
-                            return timeA - timeB;
-                        });
+                    // Sort meals by time
+                    dayMeals.sort((a, b) => {
+                        // Convert times to 24-hour format for sorting
+                        const timeA = convertTo24Hour(a.time);
+                        const timeB = convertTo24Hour(b.time);
+                        return timeA - timeB;
+                    });
                     
                     // Add meals in chronological order
-                    mealsToShow.forEach(meal => {
+                    dayMeals.forEach(meal => {
                         mealPlanHTML += `
-                            <div class="meal" onclick="showRecipeDetail('${meal.name}', ${i}, '${meal.type}', '${formData.allergies}', '${formData.medication}')">
+                            <div class="meal" onclick="showRecipeDetail('${meal.name}', ${i + 1}, '${meal.type}', '${formData.allergies}', '${formData.medication}')">
                                 <div class="meal-header">
-                                    <div class="meal-type">${meal.type}</div>
-                                    <div class="meal-time">${meal.time}</div>
+                                    <div>
+                                        <div class="meal-type">${meal.type}</div>
+                                        <div class="meal-time">${meal.time}</div>
+                                    </div>
+                                    <button class="replace-meal-btn" onclick="event.stopPropagation(); replaceMeal(this, ${i + 1}, '${meal.type}')">
+                                        <i class="fas fa-sync-alt"></i> Replace
+                                    </button>
                                 </div>
                                 <div class="meal-name">${meal.name}</div>
                                 <div class="meal-description">
@@ -1104,6 +1523,13 @@
                 
                 mealPlanElement.innerHTML = mealPlanHTML;
                 mealPlanElement.style.display = 'block';
+                
+                // Store the current meal plan for grocery list generation
+                localStorage.setItem('currentMealPlan', JSON.stringify({
+                    days: days,
+                    mealsPerDay: mealsPerDay,
+                    meals: uniqueMeals
+                }));
             }
             
             function convertTo24Hour(timeStr) {
@@ -1121,7 +1547,90 @@
                 return parseInt(hours + minutes, 10);
             }
             
-            // Make this function available globally
+            // Generate grocery list based on servings
+            function generateGroceryList(servings) {
+                const storedPlan = JSON.parse(localStorage.getItem('currentMealPlan'));
+                if (!storedPlan) return;
+                
+                const allIngredients = [];
+                
+                // Aggregate all ingredients from all meals
+                storedPlan.meals.forEach(meal => {
+                    if (meal.rawIngredients) {
+                        meal.rawIngredients.forEach(ing => {
+                            // Check if we already have this ingredient
+                            const existing = allIngredients.find(i => i.name === ing.name && i.unit === ing.unit);
+                            if (existing) {
+                                existing.amount += ing.amount * servings;
+                            } else {
+                                allIngredients.push({
+                                    name: ing.name,
+                                    amount: ing.amount * servings,
+                                    unit: ing.unit
+                                });
+                            }
+                        });
+                    }
+                });
+                
+                // Categorize ingredients
+                const categorized = {
+                    produce: [],
+                    dairy: [],
+                    meat: [],
+                    pantry: [],
+                    frozen: [],
+                    bakery: [],
+                    other: []
+                };
+                
+                allIngredients.forEach(ing => {
+                    // Simple categorization logic - would need to be expanded
+                    const name = ing.name.toLowerCase();
+                    
+                    if (name.includes('egg') || name.includes('yogurt') || name.includes('cheese') || name.includes('milk')) {
+                        categorized.dairy.push(ing);
+                    } else if (name.includes('chicken') || name.includes('beef') || name.includes('turkey') || name.includes('salmon') || name.includes('tofu')) {
+                        categorized.meat.push(ing);
+                    } else if (name.includes('bread') || name.includes('tortilla') || name.includes('crackers')) {
+                        categorized.bakery.push(ing);
+                    } else if (name.includes('spinach') || name.includes('avocado') || name.includes('tomato') || name.includes('cucumber') || name.includes('pepper') || name.includes('asparagus') || name.includes('broccoli') || name.includes('carrot') || name.includes('celery') || name.includes('lemon') || name.includes('banana') || name.includes('berry')) {
+                        categorized.produce.push(ing);
+                    } else if (name.includes('oil') || name.includes('quinoa') || name.includes('granola') || name.includes('honey') || name.includes('soy sauce') || name.includes('hummus') || name.includes('almond') || name.includes('maple syrup')) {
+                        categorized.pantry.push(ing);
+                    } else {
+                        categorized.other.push(ing);
+                    }
+                });
+                
+                // Generate HTML for the grocery list
+                let groceryHTML = '';
+                
+                for (const [category, items] of Object.entries(categorized)) {
+                    if (items.length > 0) {
+                        groceryHTML += `<div class="grocery-category">${category.charAt(0).toUpperCase() + category.slice(1)}</div>`;
+                        groceryHTML += '<ul class="grocery-list">';
+                        
+                        items.forEach(item => {
+                            // Format the amount nicely
+                            let displayAmount = item.amount;
+                            if (item.amount % 1 !== 0) {
+                                displayAmount = item.amount.toFixed(2);
+                            }
+                            
+                            groceryHTML += `<li>${displayAmount} ${item.unit ? item.unit + ' ' : ''}${item.name}</li>`;
+                        });
+                        
+                        groceryHTML += '</ul>';
+                    }
+                }
+                
+                // Show the grocery list modal
+                document.getElementById('grocery-list-content').innerHTML = groceryHTML;
+                groceryListModal.style.display = 'flex';
+            }
+            
+            // Make these functions available globally
             window.showRecipeDetail = function(recipeName, dayNumber, mealType, allergies, medication) {
                 const recipeModal = document.getElementById('recipe-modal');
                 const recipeTitle = document.getElementById('recipe-title');
@@ -1168,6 +1677,12 @@
                 
                 // Show the modal
                 recipeModal.style.display = 'flex';
+            };
+            
+            window.replaceMeal = function(button, dayNumber, mealType) {
+                // In a real implementation, this would fetch a new meal option
+                // For now, we'll just show an alert
+                alert(`Would replace ${mealType} on Day ${dayNumber} with a new meal in a real implementation.`);
             };
             
             function updateIngredients(servings) {
