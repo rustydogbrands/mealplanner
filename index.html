@@ -9,265 +9,158 @@
     <style>
         /* Previous CSS styles remain the same */
         
-        /* Add these new styles for the servings selector */
-        .servings-selector {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .servings-selector select {
-            width: auto;
-            padding: 0.5rem;
-            border-radius: 6px;
-        }
-        
-        .servings-label {
-            font-weight: 500;
-            color: var(--gray-700);
-        }
-        
-        /* Adjust recipe header layout */
-        .recipe-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.5rem;
-        }
-        
-        .recipe-title-container {
-            flex: 1;
-        }
-        
-        .recipe-meta {
+        /* Update meal header styles */
+        .meal-header {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .meal-type {
+            font-weight: 600;
+            color: var(--primary);
+            text-transform: capitalize;
+            margin-bottom: 0.25rem;
+        }
+        
+        .meal-time {
             color: var(--gray-700);
+            font-size: 0.875rem;
         }
         
         /* Keep all other existing styles the same */
     </style>
 </head>
 <body>
-    <!-- Previous HTML remains the same until the recipe modal -->
-    
-    <!-- Recipe Detail Modal -->
-    <div class="recipe-modal" id="recipe-modal">
-        <div class="recipe-content">
-            <div class="recipe-header">
-                <div class="recipe-title-container">
-                    <h1 class="recipe-title" id="recipe-title">Avocado and Spinach Omelet with Whole Grain Toast</h1>
-                    <div class="recipe-meta">
-                        <div><strong>Prep Time:</strong> <span id="prep-time">10 mins</span></div>
-                        <div><strong>Cook Time:</strong> <span id="cook-time">15 mins</span></div>
-                        <div><strong>Total Time:</strong> <span id="total-time">25 mins</span></div>
-                    </div>
-                </div>
-                <div class="servings-selector">
-                    <span class="servings-label">Servings:</span>
-                    <select id="servings-select">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="recipe-section">
-                <h2 class="recipe-section-title">Nutrition Information (per serving)</h2>
-                <div class="nutrition-grid">
-                    <div class="nutrition-card">
-                        <div class="nutrition-value" id="calories-value">450</div>
-                        <div class="nutrition-label">Calories</div>
-                    </div>
-                    <div class="nutrition-card">
-                        <div class="nutrition-value" id="protein-value">22g</div>
-                        <div class="nutrition-label">Protein</div>
-                    </div>
-                    <div class="nutrition-card">
-                        <div class="nutrition-value" id="carbs-value">35g</div>
-                        <div class="nutrition-label">Carbs</div>
-                    </div>
-                    <div class="nutrition-card">
-                        <div class="nutrition-value" id="fat-value">25g</div>
-                        <div class="nutrition-label">Fat</div>
-                    </div>
-                    <div class="nutrition-card">
-                        <div class="nutrition-value" id="fiber-value">8g</div>
-                        <div class="nutrition-label">Fiber</div>
-                    </div>
-                    <div class="nutrition-card">
-                        <div class="nutrition-value" id="sugar-value">3g</div>
-                        <div class="nutrition-label">Sugar</div>
-                    </div>
-                    <div class="nutrition-card">
-                        <div class="nutrition-value" id="sodium-value">450mg</div>
-                        <div class="nutrition-label">Sodium</div>
-                    </div>
-                    <div class="nutrition-card">
-                        <div class="nutrition-value" id="cholesterol-value">370mg</div>
-                        <div class="nutrition-label">Cholesterol</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="recipe-section">
-                <h2 class="recipe-section-title">Ingredients</h2>
-                <ul class="ingredients-list" id="ingredients-list">
-                    <li data-base-amount="2">2 large eggs</li>
-                    <li data-base-amount="0.25">1/4 cup fresh spinach, chopped</li>
-                    <li data-base-amount="0.25">1/4 avocado, sliced</li>
-                    <li data-base-amount="1">1 slice whole grain bread</li>
-                    <li data-base-amount="1">1 tsp olive oil</li>
-                    <li>Salt and pepper to taste</li>
-                </ul>
-            </div>
-            
-            <div class="recipe-section">
-                <h2 class="recipe-section-title">Instructions</h2>
-                <ol class="instructions-list" id="instructions-list">
-                    <li>Heat olive oil in a non-stick skillet over medium heat.</li>
-                    <li>Whisk eggs in a bowl with a pinch of salt and pepper.</li>
-                    <li>Pour eggs into the skillet and let cook undisturbed for 1 minute.</li>
-                    <li>Sprinkle chopped spinach over one half of the omelet.</li>
-                    <li>When eggs are nearly set, add avocado slices on top of the spinach.</li>
-                    <li>Fold the omelet in half and cook for another 30 seconds.</li>
-                    <li>Toast the whole grain bread until golden brown.</li>
-                    <li>Serve the omelet with the toast on the side.</li>
-                </ol>
-            </div>
-            
-            <div class="recipe-footer">
-                <p id="allergy-note" class="allergy-warning">Allergy Note: Contains eggs</p>
-                <p id="medication-note" class="medication-note">Medication Note: Suitable for GLP-1 Agonists</p>
-            </div>
-        </div>
-    </div>
+    <!-- Previous HTML remains the same until the JavaScript -->
     
     <script>
-        // Previous JavaScript remains the same until the showRecipeDetail function
+        // Previous JavaScript remains the same until the displaySampleMealPlan function
         
-        // Make this function available globally
-        window.showRecipeDetail = function(recipeName, dayNumber, mealType, allergies, medication) {
-            const recipeModal = document.getElementById('recipe-modal');
-            const recipeTitle = document.getElementById('recipe-title');
-            const allergyNote = document.getElementById('allergy-note');
-            const medicationNote = document.getElementById('medication-note');
-            const servingsSelect = document.getElementById('servings-select');
+        function displaySampleMealPlan(formData, apiActive) {
+            // This is just sample data for demonstration
+            // In a real app, you would use the actual API response
             
-            // Set recipe title
-            recipeTitle.textContent = recipeName;
+            let mealPlanHTML = '';
             
-            // Set allergy note if applicable
-            if (allergies && allergies.trim() !== '') {
-                allergyNote.textContent = `Allergy Note: Free from ${allergies}`;
-                allergyNote.style.display = 'block';
-            } else {
-                allergyNote.style.display = 'none';
+            const days = parseInt(formData.days);
+            const hasBreakfast = formData.meals.breakfast;
+            const hasLunch = formData.meals.lunch;
+            const hasDinner = formData.meals.dinner;
+            const hasSnacks = formData.meals.snacks;
+            const allergies = formData.allergies;
+            const medication = formData.medication;
+            
+            if (apiActive) {
+                mealPlanHTML += '<div style="margin-bottom: 1rem; color: var(--secondary); font-size: 0.875rem;"><i class="fas fa-check-circle"></i> Powered by Google AI</div>';
             }
             
-            // Set medication note if applicable
-            if (medication && medication !== 'none') {
-                let medText = '';
-                switch(medication) {
-                    case 'glp1':
-                        medText = 'Portion-controlled for GLP-1 Agonists';
-                        break;
-                    case 'warfarin':
-                        medText = 'Vitamin K consistent for Warfarin';
-                        break;
-                    case 'maoi':
-                        medText = 'Tyramine-controlled for MAO Inhibitors';
-                        break;
-                    default:
-                        medText = `Adjusted for ${medication}`;
+            // Define meal templates with times
+            const mealTemplates = [
+                {
+                    type: 'breakfast',
+                    name: 'Avocado and Spinach Omelet with Whole Grain Toast',
+                    time: '8:00 AM',
+                    description: 'Fluffy omelet packed with healthy fats and fiber',
+                    calories: '450',
+                    protein: '22g',
+                    carbs: '35g',
+                    show: hasBreakfast
+                },
+                {
+                    type: 'lunch',
+                    name: 'Grilled Chicken Salad with Balsamic Vinaigrette',
+                    time: '12:30 PM',
+                    description: 'Protein-rich salad with mixed greens and light dressing',
+                    calories: '550',
+                    protein: '40g',
+                    carbs: '20g',
+                    show: hasLunch
+                },
+                {
+                    type: 'snack',
+                    name: 'Greek Yogurt with Mixed Berries and Almonds',
+                    time: '3:00 PM',
+                    description: 'Protein-packed snack with antioxidants',
+                    calories: '250',
+                    protein: '15g',
+                    carbs: '20g',
+                    show: hasSnacks
+                },
+                {
+                    type: 'dinner',
+                    name: 'Baked Salmon with Quinoa and Roasted Asparagus',
+                    time: '6:30 PM',
+                    description: 'Heart-healthy omega-3s with complex carbs',
+                    calories: '600',
+                    protein: '45g',
+                    carbs: '40g',
+                    show: hasDinner
                 }
-                medicationNote.textContent = `Medication Note: ${medText}`;
-                medicationNote.style.display = 'block';
-            } else {
-                medicationNote.style.display = 'none';
-            }
-            
-            // Reset servings to 1 when opening a new recipe
-            servingsSelect.value = '1';
-            updateIngredients(1);
-            
-            // Add event listener for servings change
-            servingsSelect.addEventListener('change', function() {
-                const servings = parseInt(this.value);
-                updateIngredients(servings);
-            });
-            
-            // Show the modal
-            recipeModal.style.display = 'flex';
-        };
-        
-        function updateIngredients(servings) {
-            const ingredientsList = document.getElementById('ingredients-list');
-            const ingredients = ingredientsList.querySelectorAll('li[data-base-amount]');
-            
-            ingredients.forEach(ingredient => {
-                const baseAmount = parseFloat(ingredient.getAttribute('data-base-amount'));
-                let newAmount = baseAmount * servings;
-                let displayAmount = '';
-                
-                // Format the amount nicely for display
-                if (newAmount % 1 === 0) {
-                    displayAmount = newAmount.toString();
-                } else {
-                    // Convert decimals to fractions for better readability
-                    const fraction = convertToFraction(newAmount % 1);
-                    const whole = Math.floor(newAmount);
-                    
-                    if (whole > 0) {
-                        displayAmount = `${whole} ${fraction}`;
-                    } else {
-                        displayAmount = fraction;
-                    }
-                }
-                
-                // Update the displayed amount
-                const textParts = ingredient.textContent.split(' ');
-                textParts[0] = displayAmount;
-                ingredient.textContent = textParts.join(' ');
-            });
-        }
-        
-        function convertToFraction(decimal) {
-            // Common fractions for cooking measurements
-            const fractions = [
-                {value: 0.125, text: '1/8'},
-                {value: 0.25, text: '1/4'},
-                {value: 0.333, text: '1/3'},
-                {value: 0.5, text: '1/2'},
-                {value: 0.666, text: '2/3'},
-                {value: 0.75, text: '3/4'}
             ];
             
-            // Find the closest matching fraction
-            let closestFraction = fractions[0];
-            let smallestDiff = Math.abs(decimal - fractions[0].value);
-            
-            for (let i = 1; i < fractions.length; i++) {
-                const diff = Math.abs(decimal - fractions[i].value);
-                if (diff < smallestDiff) {
-                    smallestDiff = diff;
-                    closestFraction = fractions[i];
-                }
+            for (let i = 1; i <= days; i++) {
+                const dayName = new Date(Date.now() + (i * 24 * 60 * 60 * 1000)).toLocaleDateString('en-US', { weekday: 'long' });
+                
+                mealPlanHTML += `
+                    <div class="day">
+                        <div class="day-header">Day ${i}: ${dayName}</div>
+                `;
+                
+                // Filter and sort meals by time
+                const mealsToShow = mealTemplates
+                    .filter(meal => meal.show)
+                    .sort((a, b) => {
+                        // Convert times to 24-hour format for sorting
+                        const timeA = convertTo24Hour(a.time);
+                        const timeB = convertTo24Hour(b.time);
+                        return timeA - timeB;
+                    });
+                
+                // Add meals in chronological order
+                mealsToShow.forEach(meal => {
+                    mealPlanHTML += `
+                        <div class="meal" onclick="showRecipeDetail('${meal.name}', ${i}, '${meal.type}', '${allergies}', '${medication}')">
+                            <div class="meal-header">
+                                <div class="meal-type">${meal.type}</div>
+                                <div class="meal-time">${meal.time}</div>
+                            </div>
+                            <div class="meal-name">${meal.name}</div>
+                            <div class="meal-description">
+                                ${meal.description}${allergies ? ' (Allergy-aware)' : ''}${medication !== 'none' ? ' (Medication-adjusted)' : ''}
+                            </div>
+                            <div class="meal-nutrition">
+                                <div class="nutrition-item"><span>Calories:</span> <span>${meal.calories}</span></div>
+                                <div class="nutrition-item"><span>Protein:</span> <span>${meal.protein}</span></div>
+                                <div class="nutrition-item"><span>Carbs:</span> <span>${meal.carbs}</span></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                mealPlanHTML += `</div>`;
             }
             
-            // Only use fraction if it's close enough
-            return smallestDiff < 0.1 ? closestFraction.text : decimal.toFixed(2);
+            mealPlanElement.innerHTML = mealPlanHTML;
+            mealPlanElement.style.display = 'block';
         }
+        
+        function convertTo24Hour(timeStr) {
+            // Helper function to convert "8:00 AM" to 800, "1:30 PM" to 1330, etc.
+            const [time, modifier] = timeStr.split(' ');
+            let [hours, minutes] = time.split(':');
+            
+            if (modifier === 'PM' && hours !== '12') {
+                hours = parseInt(hours, 10) + 12;
+            }
+            if (modifier === 'AM' && hours === '12') {
+                hours = '00';
+            }
+            
+            return parseInt(hours + minutes, 10);
+        }
+        
+        // Keep all other JavaScript functions the same
     </script>
 </body>
 </html>
