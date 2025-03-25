@@ -73,6 +73,12 @@
         .header-actions {
             display: flex;
             gap: 1rem;
+            align-items: center;
+        }
+        
+        .user-name {
+            font-weight: 500;
+            color: var(--gray-700);
         }
         
         .settings-btn {
@@ -739,9 +745,51 @@
             margin-bottom: 1rem;
             color: var(--gray-900);
         }
+        
+        /* Name input modal */
+        .name-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .name-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .name-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--gray-900);
+        }
     </style>
 </head>
 <body>
+    <!-- Name Input Modal -->
+    <div class="name-modal" id="name-modal">
+        <div class="name-content">
+            <h2 class="name-title">Welcome to MetabolicRx NutritionAI</h2>
+            <div class="form-group">
+                <label for="user-name-input">Please enter your name:</label>
+                <input type="text" id="user-name-input" placeholder="Your name">
+            </div>
+            <button id="save-name" class="full-width-btn">Continue</button>
+        </div>
+    </div>
+    
     <div class="container">
         <header>
             <div class="logo-container">
@@ -752,6 +800,7 @@
                 </div>
             </div>
             <div class="header-actions">
+                <span class="user-name" id="user-name-display"></span>
                 <button class="settings-btn" id="settings-btn">
                     <i class="fas fa-cog"></i>
                 </button>
@@ -871,6 +920,7 @@
             </div>
             
             <div class="results-panel">
+                <button id="generate-grocery" class="full-width-btn" style="margin-bottom: 2rem; display: none;">Generate Grocery List</button>
                 <h2>Your Personalized Meal Plan</h2>
                 
                 <div class="loading" id="loading">
@@ -890,8 +940,6 @@
                     <p>Your personalized meal plan will appear here after you click "Generate Meal Plan".</p>
                     <p>We'll take into account your dietary preferences, allergies, and any medication considerations to create a plan that works for you.</p>
                 </div>
-                
-                <button id="generate-grocery" class="full-width-btn" style="margin-top: 2rem; display: none;">Generate Grocery List</button>
             </div>
         </div>
     </div>
@@ -1050,6 +1098,27 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Show name input modal if name isn't set
+            const nameModal = document.getElementById('name-modal');
+            const userNameInput = document.getElementById('user-name-input');
+            const saveNameBtn = document.getElementById('save-name');
+            const userNameDisplay = document.getElementById('user-name-display');
+            
+            if (!localStorage.getItem('metabolicrx_user_name')) {
+                nameModal.style.display = 'flex';
+            } else {
+                userNameDisplay.textContent = localStorage.getItem('metabolicrx_user_name');
+            }
+            
+            saveNameBtn.addEventListener('click', function() {
+                const name = userNameInput.value.trim();
+                if (name) {
+                    localStorage.setItem('metabolicrx_user_name', name);
+                    userNameDisplay.textContent = name;
+                    nameModal.style.display = 'none';
+                }
+            });
+            
             // Toggle advanced options
             const toggleAdvanced = document.getElementById('toggle-advanced');
             const advancedContent = document.querySelector('.advanced-content');
@@ -1378,41 +1447,29 @@
                 }
             ];
             
-            // Generate unique meals for each day
-            function getUniqueMeals(days, mealTypes) {
-                const uniqueMeals = [];
-                const usedMealNames = new Set();
-                const mealsPerDay = mealTypes.filter(type => type.checked).length;
-                const totalMealsNeeded = days * mealsPerDay;
+            // Generate meals for each day with one of each selected meal type
+            function getMealsForDays(days, mealTypes) {
+                const selectedMealTypes = mealTypes.filter(type => type.checked).map(type => type.id);
+                const mealsByType = {};
                 
-                // Filter meals by selected types
-                const availableMeals = mealDatabase.filter(meal => {
-                    return mealTypes.some(type => type.id === meal.type && type.checked);
+                // Group meals by type
+                selectedMealTypes.forEach(type => {
+                    mealsByType[type] = mealDatabase.filter(meal => meal.type === type);
                 });
                 
-                // If we don't have enough unique meals, we'll need to repeat some
-                if (availableMeals.length < totalMealsNeeded) {
-                    // Calculate how many times we need to repeat the meals
-                    const repeatCount = Math.ceil(totalMealsNeeded / availableMeals.length);
-                    
-                    // Create an array with repeated meals
-                    for (let i = 0; i < repeatCount; i++) {
-                        availableMeals.forEach(meal => {
-                            if (uniqueMeals.length < totalMealsNeeded) {
-                                uniqueMeals.push({
-                                    ...meal,
-                                    name: i > 0 ? `${meal.name} (${i + 1})` : meal.name
-                                });
-                            }
-                        });
-                    }
-                } else {
-                    // Shuffle the meals and take what we need
-                    const shuffled = [...availableMeals].sort(() => 0.5 - Math.random());
-                    uniqueMeals.push(...shuffled.slice(0, totalMealsNeeded));
+                // For each day, select one random meal of each type
+                const dailyMeals = [];
+                for (let i = 0; i < days; i++) {
+                    const dayMeals = [];
+                    selectedMealTypes.forEach(type => {
+                        const availableMeals = mealsByType[type];
+                        const randomIndex = Math.floor(Math.random() * availableMeals.length);
+                        dayMeals.push(availableMeals[randomIndex]);
+                    });
+                    dailyMeals.push(dayMeals);
                 }
                 
-                return uniqueMeals;
+                return dailyMeals;
             }
             
             generateButton.addEventListener('click', function() {
@@ -1463,25 +1520,22 @@
             });
             
             function displaySampleMealPlan(formData, apiActive) {
-                // Get unique meals for the selected days and meal types
-                const uniqueMeals = getUniqueMeals(formData.days, formData.meals);
+                // Get meals for each day with one of each selected type
+                const dailyMeals = getMealsForDays(formData.days, formData.meals);
                 
                 let mealPlanHTML = '';
-                const days = formData.days;
-                const mealsPerDay = formData.meals.filter(m => m.checked).length;
                 
                 if (apiActive) {
                     mealPlanHTML += '<div style="margin-bottom: 1rem; color: var(--secondary); font-size: 0.875rem;"><i class="fas fa-check-circle"></i> Powered by Google AI</div>';
                 }
                 
-                // Distribute meals across days
-                for (let i = 0; i < days; i++) {
-                    const dayName = new Date(Date.now() + ((i + 1) * 24 * 60 * 60 * 1000)).toLocaleDateString('en-US', { weekday: 'long' });
-                    const dayMeals = uniqueMeals.slice(i * mealsPerDay, (i + 1) * mealsPerDay);
+                // Display meals for each day
+                dailyMeals.forEach((dayMeals, dayIndex) => {
+                    const dayName = new Date(Date.now() + ((dayIndex + 1) * 24 * 60 * 60 * 1000)).toLocaleDateString('en-US', { weekday: 'long' });
                     
                     mealPlanHTML += `
                         <div class="day">
-                            <div class="day-header">Day ${i + 1}: ${dayName}</div>
+                            <div class="day-header">Day ${dayIndex + 1}: ${dayName}</div>
                     `;
                     
                     // Sort meals by time
@@ -1495,13 +1549,13 @@
                     // Add meals in chronological order
                     dayMeals.forEach(meal => {
                         mealPlanHTML += `
-                            <div class="meal" onclick="showRecipeDetail('${meal.name}', ${i + 1}, '${meal.type}', '${formData.allergies}', '${formData.medication}')">
+                            <div class="meal" onclick="showRecipeDetail('${meal.name}', ${dayIndex + 1}, '${meal.type}', '${formData.allergies}', '${formData.medication}')">
                                 <div class="meal-header">
                                     <div>
                                         <div class="meal-type">${meal.type}</div>
                                         <div class="meal-time">${meal.time}</div>
                                     </div>
-                                    <button class="replace-meal-btn" onclick="event.stopPropagation(); replaceMeal(this, ${i + 1}, '${meal.type}')">
+                                    <button class="replace-meal-btn" onclick="event.stopPropagation(); replaceMeal(this, ${dayIndex + 1}, '${meal.type}')">
                                         <i class="fas fa-sync-alt"></i> Replace
                                     </button>
                                 </div>
@@ -1519,16 +1573,16 @@
                     });
                     
                     mealPlanHTML += `</div>`;
-                }
+                });
                 
                 mealPlanElement.innerHTML = mealPlanHTML;
                 mealPlanElement.style.display = 'block';
                 
                 // Store the current meal plan for grocery list generation
                 localStorage.setItem('currentMealPlan', JSON.stringify({
-                    days: days,
-                    mealsPerDay: mealsPerDay,
-                    meals: uniqueMeals
+                    days: formData.days,
+                    mealsPerDay: formData.meals.filter(m => m.checked).length,
+                    meals: dailyMeals.flat()
                 }));
             }
             
@@ -1680,9 +1734,48 @@
             };
             
             window.replaceMeal = function(button, dayNumber, mealType) {
-                // In a real implementation, this would fetch a new meal option
-                // For now, we'll just show an alert
-                alert(`Would replace ${mealType} on Day ${dayNumber} with a new meal in a real implementation.`);
+                // Get the meal element
+                const mealElement = button.closest('.meal');
+                const mealPlan = JSON.parse(localStorage.getItem('currentMealPlan'));
+                
+                // Find available meals of this type
+                const availableMeals = mealDatabase.filter(meal => meal.type === mealType);
+                if (availableMeals.length === 0) return;
+                
+                // Get a random meal of this type
+                const randomIndex = Math.floor(Math.random() * availableMeals.length);
+                const newMeal = availableMeals[randomIndex];
+                
+                // Update the meal element with new meal
+                mealElement.innerHTML = `
+                    <div class="meal-header">
+                        <div>
+                            <div class="meal-type">${newMeal.type}</div>
+                            <div class="meal-time">${newMeal.time}</div>
+                        </div>
+                        <button class="replace-meal-btn" onclick="event.stopPropagation(); replaceMeal(this, ${dayNumber}, '${newMeal.type}')">
+                            <i class="fas fa-sync-alt"></i> Replace
+                        </button>
+                    </div>
+                    <div class="meal-name">${newMeal.name}</div>
+                    <div class="meal-description">
+                        ${newMeal.description}
+                    </div>
+                    <div class="meal-nutrition">
+                        <div class="nutrition-item"><span>Calories:</span> <span>${newMeal.calories}</span></div>
+                        <div class="nutrition-item"><span>Protein:</span> <span>${newMeal.protein}</span></div>
+                        <div class="nutrition-item"><span>Carbs:</span> <span>${newMeal.carbs}</span></div>
+                    </div>
+                `;
+                
+                // Update the stored meal plan
+                const mealIndex = (dayNumber - 1) * mealPlan.mealsPerDay + 
+                    mealPlan.meals.findIndex(m => m.type === mealType && 
+                    m.day === dayNumber);
+                if (mealIndex >= 0) {
+                    mealPlan.meals[mealIndex] = newMeal;
+                    localStorage.setItem('currentMealPlan', JSON.stringify(mealPlan));
+                }
             };
             
             function updateIngredients(servings) {
