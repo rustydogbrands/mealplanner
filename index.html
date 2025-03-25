@@ -121,6 +121,13 @@
             color: var(--gray-900);
         }
         
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -177,6 +184,16 @@
         
         button:hover {
             background-color: var(--primary-light);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--gray-100);
         }
         
         .api-key-note {
@@ -236,6 +253,7 @@
             padding: 1rem;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
         }
         
         .meal:hover {
@@ -588,6 +606,62 @@
             font-weight: 500;
             color: var(--gray-700);
         }
+        
+        /* Grocery list modal */
+        .grocery-list-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem 0;
+            overflow-y: auto;
+        }
+        
+        .grocery-list-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            margin: 0 auto;
+        }
+        
+        .grocery-list {
+            list-style-type: none;
+            columns: 2;
+            column-gap: 2rem;
+        }
+        
+        .grocery-list li {
+            margin-bottom: 0.5rem;
+            break-inside: avoid;
+        }
+        
+        /* Meal replacement button */
+        .replace-meal-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            color: var(--gray-700);
+            cursor: pointer;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .replace-meal-btn:hover {
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -610,6 +684,11 @@
         <div class="planner-container">
             <div class="settings-panel">
                 <h2>Meal Preferences</h2>
+                
+                <div class="form-group">
+                    <label for="user-name">Your Name</label>
+                    <input type="text" id="user-name" placeholder="Enter your name">
+                </div>
                 
                 <div class="form-group">
                     <label for="diet-type">Diet Type</label>
@@ -637,7 +716,8 @@
                         <option value="1">1 day</option>
                         <option value="3">3 days</option>
                         <option value="5">5 days</option>
-                        <option value="7" selected>7 days</option>
+                        <option value="7">7 days</option>
+                        <option value="14">14 days</option>
                     </select>
                 </div>
                 
@@ -719,7 +799,12 @@
             </div>
             
             <div class="results-panel">
-                <h2>Your Personalized Meal Plan</h2>
+                <div class="results-header">
+                    <h2 id="personalized-header">Your Personalized Meal Plan</h2>
+                    <button class="btn-secondary" id="generate-grocery-list">
+                        <i class="fas fa-list"></i> Generate Grocery List
+                    </button>
+                </div>
                 
                 <div class="loading" id="loading">
                     <div class="spinner"></div>
@@ -865,6 +950,31 @@
         </div>
     </div>
     
+    <!-- Grocery List Modal -->
+    <div class="grocery-list-modal" id="grocery-list-modal">
+        <div class="grocery-list-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Your Grocery List</h3>
+                <button class="close-modal" id="close-grocery-modal">&times;</button>
+            </div>
+            
+            <div class="recipe-section">
+                <ul class="grocery-list" id="grocery-list">
+                    <!-- Grocery items will be added here -->
+                </ul>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-secondary" id="print-grocery-list">
+                    <i class="fas fa-print"></i> Print List
+                </button>
+                <button class="modal-btn modal-btn-primary" id="close-grocery-list">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Toggle advanced options
@@ -901,6 +1011,14 @@
             // Recipe modal elements
             const recipeModal = document.getElementById('recipe-modal');
             const servingsSelect = document.getElementById('servings-select');
+            
+            // Grocery list modal elements
+            const groceryListModal = document.getElementById('grocery-list-modal');
+            const closeGroceryModal = document.getElementById('close-grocery-modal');
+            const closeGroceryList = document.getElementById('close-grocery-list');
+            const printGroceryList = document.getElementById('print-grocery-list');
+            const groceryList = document.getElementById('grocery-list');
+            const generateGroceryBtn = document.getElementById('generate-grocery-list');
             
             // Check if API key exists in localStorage
             if (localStorage.getItem('metabolicrx_api_key')) {
@@ -939,6 +1057,28 @@
                 }
             });
             
+            // Grocery list modal handlers
+            generateGroceryBtn.addEventListener('click', generateGroceryList);
+            
+            closeGroceryModal.addEventListener('click', function() {
+                groceryListModal.style.display = 'none';
+            });
+            
+            closeGroceryList.addEventListener('click', function() {
+                groceryListModal.style.display = 'none';
+            });
+            
+            printGroceryList.addEventListener('click', function() {
+                window.print();
+            });
+            
+            // Close grocery modal when clicking outside content
+            groceryListModal.addEventListener('click', function(e) {
+                if (e.target === groceryListModal) {
+                    groceryListModal.style.display = 'none';
+                }
+            });
+            
             // Servings change handler
             servingsSelect.addEventListener('change', function() {
                 const servings = parseInt(this.value);
@@ -964,8 +1104,16 @@
             const errorElement = document.getElementById('error-message');
             const mealPlanElement = document.getElementById('meal-plan');
             const defaultMessage = document.getElementById('default-message');
+            const personalizedHeader = document.getElementById('personalized-header');
             
             generateButton.addEventListener('click', function() {
+                const userName = document.getElementById('user-name').value.trim();
+                if (userName) {
+                    personalizedHeader.textContent = `${userName}'s Personalized Meal Plan`;
+                } else {
+                    personalizedHeader.textContent = 'Your Personalized Meal Plan';
+                }
+                
                 // Show loading state
                 loadingElement.style.display = 'block';
                 errorElement.style.display = 'none';
@@ -996,17 +1144,129 @@
                 setTimeout(function() {
                     loadingElement.style.display = 'none';
                     
-                    // For demo purposes, we'll just show sample data
-                    // In a real app, you would call the Google AI API here
                     if (formData.apiKey) {
-                        // This is where you would integrate with Google's AI API
-                        // For now, we'll just show sample data with an API indicator
                         displaySampleMealPlan(formData, true);
                     } else {
                         displaySampleMealPlan(formData, false);
                     }
                 }, 2000);
             });
+            
+            // Store current meal plan data
+            let currentMealPlan = [];
+            let alternativeMeals = {
+                breakfast: [
+                    {
+                        name: 'Greek Yogurt Parfait with Granola and Berries',
+                        time: '8:00 AM',
+                        description: 'Creamy yogurt with crunchy granola and fresh berries',
+                        calories: '400',
+                        protein: '18g',
+                        carbs: '45g',
+                        ingredients: [
+                            {amount: '1', item: 'cup Greek yogurt'},
+                            {amount: '0.5', item: 'cup mixed berries'},
+                            {amount: '0.25', item: 'cup granola'},
+                            {amount: '1', item: 'tsp honey'}
+                        ]
+                    },
+                    {
+                        name: 'Scrambled Eggs with Whole Wheat Toast',
+                        time: '8:00 AM',
+                        description: 'Fluffy scrambled eggs with fiber-rich toast',
+                        calories: '350',
+                        protein: '20g',
+                        carbs: '30g',
+                        ingredients: [
+                            {amount: '2', item: 'large eggs'},
+                            {amount: '1', item: 'slice whole wheat bread'},
+                            {amount: '1', item: 'tsp butter'}
+                        ]
+                    }
+                ],
+                lunch: [
+                    {
+                        name: 'Turkey and Avocado Wrap',
+                        time: '12:30 PM',
+                        description: 'Lean protein with healthy fats in a whole grain wrap',
+                        calories: '500',
+                        protein: '35g',
+                        carbs: '30g',
+                        ingredients: [
+                            {amount: '1', item: 'whole grain tortilla'},
+                            {amount: '3', item: 'oz turkey breast'},
+                            {amount: '0.25', item: 'avocado'},
+                            {amount: '1', item: 'leaf lettuce'}
+                        ]
+                    },
+                    {
+                        name: 'Quinoa Salad with Chickpeas and Vegetables',
+                        time: '12:30 PM',
+                        description: 'Plant-based protein with fresh vegetables',
+                        calories: '450',
+                        protein: '15g',
+                        carbs: '60g',
+                        ingredients: [
+                            {amount: '0.5', item: 'cup cooked quinoa'},
+                            {amount: '0.5', item: 'cup chickpeas'},
+                            {amount: '0.5', item: 'cup mixed vegetables'}
+                        ]
+                    }
+                ],
+                dinner: [
+                    {
+                        name: 'Grilled Chicken with Roasted Vegetables',
+                        time: '6:30 PM',
+                        description: 'Lean protein with antioxidant-rich vegetables',
+                        calories: '550',
+                        protein: '50g',
+                        carbs: '25g',
+                        ingredients: [
+                            {amount: '1', item: 'chicken breast'},
+                            {amount: '1', item: 'cup mixed vegetables'},
+                            {amount: '1', item: 'tbsp olive oil'}
+                        ]
+                    },
+                    {
+                        name: 'Vegetable Stir Fry with Tofu',
+                        time: '6:30 PM',
+                        description: 'Plant-based protein with colorful vegetables',
+                        calories: '500',
+                        protein: '25g',
+                        carbs: '40g',
+                        ingredients: [
+                            {amount: '0.5', item: 'block firm tofu'},
+                            {amount: '1.5', item: 'cups mixed vegetables'},
+                            {amount: '1', item: 'tbsp soy sauce'}
+                        ]
+                    }
+                ],
+                snack: [
+                    {
+                        name: 'Apple Slices with Almond Butter',
+                        time: '3:00 PM',
+                        description: 'Fiber-rich fruit with healthy fats',
+                        calories: '200',
+                        protein: '5g',
+                        carbs: '25g',
+                        ingredients: [
+                            {amount: '1', item: 'medium apple'},
+                            {amount: '1', item: 'tbsp almond butter'}
+                        ]
+                    },
+                    {
+                        name: 'Handful of Mixed Nuts',
+                        time: '3:00 PM',
+                        description: 'Healthy fats and plant-based protein',
+                        calories: '250',
+                        protein: '8g',
+                        carbs: '10g',
+                        ingredients: [
+                            {amount: '0.25', item: 'cup mixed nuts'}
+                        ]
+                    }
+                ]
+            };
             
             function displaySampleMealPlan(formData, apiActive) {
                 // Define meal templates with times
@@ -1019,7 +1279,15 @@
                         calories: '450',
                         protein: '22g',
                         carbs: '35g',
-                        show: formData.meals.breakfast
+                        show: formData.meals.breakfast,
+                        ingredients: [
+                            {amount: '2', item: 'large eggs'},
+                            {amount: '0.25', item: 'cup fresh spinach, chopped'},
+                            {amount: '0.25', item: 'avocado, sliced'},
+                            {amount: '1', item: 'slice whole grain bread'},
+                            {amount: '1', item: 'tsp olive oil'},
+                            {amount: '', item: 'Salt and pepper to taste'}
+                        ]
                     },
                     {
                         type: 'lunch',
@@ -1029,7 +1297,14 @@
                         calories: '550',
                         protein: '40g',
                         carbs: '20g',
-                        show: formData.meals.lunch
+                        show: formData.meals.lunch,
+                        ingredients: [
+                            {amount: '4', item: 'oz grilled chicken breast'},
+                            {amount: '2', item: 'cups mixed greens'},
+                            {amount: '0.5', item: 'cup cherry tomatoes'},
+                            {amount: '0.5', item: 'cup cucumber slices'},
+                            {amount: '1', item: 'tbsp balsamic vinaigrette'}
+                        ]
                     },
                     {
                         type: 'snack',
@@ -1039,7 +1314,12 @@
                         calories: '250',
                         protein: '15g',
                         carbs: '20g',
-                        show: formData.meals.snacks
+                        show: formData.meals.snacks,
+                        ingredients: [
+                            {amount: '1', item: 'cup Greek yogurt'},
+                            {amount: '0.5', item: 'cup mixed berries'},
+                            {amount: '0.25', item: 'cup almonds'}
+                        ]
                     },
                     {
                         type: 'dinner',
@@ -1049,10 +1329,18 @@
                         calories: '600',
                         protein: '45g',
                         carbs: '40g',
-                        show: formData.meals.dinner
+                        show: formData.meals.dinner,
+                        ingredients: [
+                            {amount: '1', item: 'salmon fillet (6 oz)'},
+                            {amount: '0.5', item: 'cup cooked quinoa'},
+                            {amount: '1', item: 'cup asparagus spears'},
+                            {amount: '1', item: 'tbsp olive oil'},
+                            {amount: '', item: 'Lemon wedges for serving'}
+                        ]
                     }
                 ];
                 
+                currentMealPlan = [];
                 let mealPlanHTML = '';
                 const days = parseInt(formData.days);
                 
@@ -1072,7 +1360,6 @@
                     const mealsToShow = mealTemplates
                         .filter(meal => meal.show)
                         .sort((a, b) => {
-                            // Convert times to 24-hour format for sorting
                             const timeA = convertTo24Hour(a.time);
                             const timeB = convertTo24Hour(b.time);
                             return timeA - timeB;
@@ -1080,8 +1367,19 @@
                     
                     // Add meals in chronological order
                     mealsToShow.forEach(meal => {
+                        const mealId = `meal-${i}-${meal.type}`;
+                        currentMealPlan.push({
+                            id: mealId,
+                            type: meal.type,
+                            name: meal.name,
+                            ingredients: meal.ingredients
+                        });
+                        
                         mealPlanHTML += `
-                            <div class="meal" onclick="showRecipeDetail('${meal.name}', ${i}, '${meal.type}', '${formData.allergies}', '${formData.medication}')">
+                            <div class="meal" id="${mealId}" onclick="showRecipeDetail('${meal.name}', ${i}, '${meal.type}', '${formData.allergies}', '${formData.medication}')">
+                                <button class="replace-meal-btn" onclick="replaceMeal(event, '${mealId}', '${meal.type}')">
+                                    <i class="fas fa-sync-alt"></i> Replace
+                                </button>
                                 <div class="meal-header">
                                     <div class="meal-type">${meal.type}</div>
                                     <div class="meal-time">${meal.time}</div>
@@ -1107,7 +1405,6 @@
             }
             
             function convertTo24Hour(timeStr) {
-                // Helper function to convert "8:00 AM" to 800, "1:30 PM" to 1330, etc.
                 const [time, modifier] = timeStr.split(' ');
                 let [hours, minutes] = time.split(':');
                 
@@ -1121,13 +1418,98 @@
                 return parseInt(hours + minutes, 10);
             }
             
-            // Make this function available globally
+            function generateGroceryList() {
+                groceryList.innerHTML = '';
+                
+                // Aggregate all ingredients
+                const allIngredients = {};
+                
+                currentMealPlan.forEach(meal => {
+                    meal.ingredients.forEach(ingredient => {
+                        const key = ingredient.item.toLowerCase();
+                        if (allIngredients[key]) {
+                            if (ingredient.amount) {
+                                allIngredients[key].amount += parseFloat(ingredient.amount) || 0;
+                            }
+                        } else {
+                            allIngredients[key] = {
+                                amount: parseFloat(ingredient.amount) || 0,
+                                unit: ingredient.amount ? ingredient.item.split(' ')[0].replace(/[0-9.\/]/g, '') : '',
+                                item: ingredient.item.replace(/^[0-9.\/]+\s*/, '')
+                            };
+                        }
+                    });
+                });
+                
+                // Display the grocery list
+                for (const key in allIngredients) {
+                    const item = allIngredients[key];
+                    const li = document.createElement('li');
+                    
+                    if (item.amount > 0) {
+                        li.textContent = `${formatAmount(item.amount)} ${item.item}`;
+                    } else {
+                        li.textContent = item.item;
+                    }
+                    
+                    groceryList.appendChild(li);
+                }
+                
+                groceryListModal.style.display = 'flex';
+            }
+            
+            function formatAmount(amount) {
+                if (amount % 1 === 0) {
+                    return amount.toString();
+                } else {
+                    // Convert decimals to fractions for better readability
+                    const fraction = convertToFraction(amount % 1);
+                    const whole = Math.floor(amount);
+                    
+                    if (whole > 0) {
+                        return `${whole} ${fraction}`;
+                    } else {
+                        return fraction;
+                    }
+                }
+            }
+            
+            function convertToFraction(decimal) {
+                const fractions = [
+                    {value: 0.125, text: '1/8'},
+                    {value: 0.25, text: '1/4'},
+                    {value: 0.333, text: '1/3'},
+                    {value: 0.5, text: '1/2'},
+                    {value: 0.666, text: '2/3'},
+                    {value: 0.75, text: '3/4'}
+                ];
+                
+                let closestFraction = fractions[0];
+                let smallestDiff = Math.abs(decimal - fractions[0].value);
+                
+                for (let i = 1; i < fractions.length; i++) {
+                    const diff = Math.abs(decimal - fractions[i].value);
+                    if (diff < smallestDiff) {
+                        smallestDiff = diff;
+                        closestFraction = fractions[i];
+                    }
+                }
+                
+                return smallestDiff < 0.1 ? closestFraction.text : decimal.toFixed(2);
+            }
+            
+            // Make these functions available globally
             window.showRecipeDetail = function(recipeName, dayNumber, mealType, allergies, medication) {
                 const recipeModal = document.getElementById('recipe-modal');
                 const recipeTitle = document.getElementById('recipe-title');
                 const allergyNote = document.getElementById('allergy-note');
                 const medicationNote = document.getElementById('medication-note');
                 const servingsSelect = document.getElementById('servings-select');
+                const ingredientsList = document.getElementById('ingredients-list');
+                
+                // Find the meal in currentMealPlan
+                const mealId = `meal-${dayNumber}-${mealType}`;
+                const meal = currentMealPlan.find(m => m.id === mealId);
                 
                 // Set recipe title
                 recipeTitle.textContent = recipeName;
@@ -1162,6 +1544,21 @@
                     medicationNote.style.display = 'none';
                 }
                 
+                // Update ingredients list
+                ingredientsList.innerHTML = '';
+                if (meal && meal.ingredients) {
+                    meal.ingredients.forEach(ingredient => {
+                        const li = document.createElement('li');
+                        if (ingredient.amount) {
+                            li.setAttribute('data-base-amount', ingredient.amount);
+                            li.textContent = `${ingredient.amount} ${ingredient.item}`;
+                        } else {
+                            li.textContent = ingredient.item;
+                        }
+                        ingredientsList.appendChild(li);
+                    });
+                }
+                
                 // Reset servings to 1 when opening a new recipe
                 servingsSelect.value = '1';
                 updateIngredients(1);
@@ -1170,7 +1567,46 @@
                 recipeModal.style.display = 'flex';
             };
             
-            function updateIngredients(servings) {
+            window.replaceMeal = function(event, mealId, mealType) {
+                event.stopPropagation();
+                
+                // Find the meal in currentMealPlan
+                const mealIndex = currentMealPlan.findIndex(m => m.id === mealId);
+                if (mealIndex === -1) return;
+                
+                // Get alternatives for this meal type
+                const alternatives = alternativeMeals[mealType];
+                if (!alternatives || alternatives.length === 0) return;
+                
+                // Get a random alternative (excluding current meal)
+                let alternative;
+                do {
+                    alternative = alternatives[Math.floor(Math.random() * alternatives.length)];
+                } while (alternative.name === currentMealPlan[mealIndex].name);
+                
+                // Update the current meal plan
+                currentMealPlan[mealIndex] = {
+                    ...currentMealPlan[mealIndex],
+                    name: alternative.name,
+                    ingredients: alternative.ingredients
+                };
+                
+                // Update the displayed meal
+                const mealElement = document.getElementById(mealId);
+                if (mealElement) {
+                    mealElement.querySelector('.meal-name').textContent = alternative.name;
+                    mealElement.querySelector('.meal-description').textContent = alternative.description;
+                    
+                    const nutritionItems = mealElement.querySelectorAll('.nutrition-item span:last-child');
+                    if (nutritionItems.length >= 3) {
+                        nutritionItems[0].textContent = alternative.calories;
+                        nutritionItems[1].textContent = alternative.protein;
+                        nutritionItems[2].textContent = alternative.carbs;
+                    }
+                }
+            };
+            
+            window.updateIngredients = function(servings) {
                 const ingredientsList = document.getElementById('ingredients-list');
                 const ingredients = ingredientsList.querySelectorAll('li[data-base-amount]');
                 
@@ -1199,34 +1635,7 @@
                     textParts[0] = displayAmount;
                     ingredient.textContent = textParts.join(' ');
                 });
-            }
-            
-            function convertToFraction(decimal) {
-                // Common fractions for cooking measurements
-                const fractions = [
-                    {value: 0.125, text: '1/8'},
-                    {value: 0.25, text: '1/4'},
-                    {value: 0.333, text: '1/3'},
-                    {value: 0.5, text: '1/2'},
-                    {value: 0.666, text: '2/3'},
-                    {value: 0.75, text: '3/4'}
-                ];
-                
-                // Find the closest matching fraction
-                let closestFraction = fractions[0];
-                let smallestDiff = Math.abs(decimal - fractions[0].value);
-                
-                for (let i = 1; i < fractions.length; i++) {
-                    const diff = Math.abs(decimal - fractions[i].value);
-                    if (diff < smallestDiff) {
-                        smallestDiff = diff;
-                        closestFraction = fractions[i];
-                    }
-                }
-                
-                // Only use fraction if it's close enough
-                return smallestDiff < 0.1 ? closestFraction.text : decimal.toFixed(2);
-            }
+            };
         });
     </script>
 </body>
