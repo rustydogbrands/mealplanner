@@ -234,6 +234,13 @@
             background: var(--gray-100);
             border-radius: 8px;
             padding: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .meal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         
         .meal-header {
@@ -417,6 +424,136 @@
         .api-status-inactive {
             background-color: var(--gray-300);
         }
+        
+        /* Recipe Detail Modal */
+        .recipe-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem 0;
+            overflow-y: auto;
+        }
+        
+        .recipe-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            margin: 0 auto;
+        }
+        
+        .recipe-header {
+            margin-bottom: 1.5rem;
+        }
+        
+        .recipe-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .recipe-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+        
+        .recipe-section {
+            margin-bottom: 2rem;
+        }
+        
+        .recipe-section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .nutrition-card {
+            background: var(--gray-100);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .nutrition-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .nutrition-label {
+            font-size: 0.75rem;
+            color: var(--gray-700);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .ingredients-list {
+            list-style-type: none;
+        }
+        
+        .ingredients-list li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .ingredients-list li:before {
+            content: "•";
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+        }
+        
+        .instructions-list {
+            list-style-type: decimal;
+            padding-left: 1.5rem;
+        }
+        
+        .instructions-list li {
+            margin-bottom: 0.75rem;
+        }
+        
+        .recipe-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray-200);
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+        
+        .allergy-warning {
+            color: var(--danger);
+            font-weight: 500;
+        }
+        
+        .medication-note {
+            color: var(--primary);
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -596,6 +733,90 @@
         </div>
     </div>
     
+    <!-- Recipe Detail Modal -->
+    <div class="recipe-modal" id="recipe-modal">
+        <div class="recipe-content">
+            <div class="recipe-header">
+                <h1 class="recipe-title" id="recipe-title">Avocado and Spinach Omelet with Whole Grain Toast</h1>
+                <div class="recipe-meta">
+                    <div><strong>Prep Time:</strong> <span id="prep-time">10 mins</span></div>
+                    <div><strong>Cook Time:</strong> <span id="cook-time">15 mins</span></div>
+                    <div><strong>Total Time:</strong> <span id="total-time">25 mins</span></div>
+                    <div><strong>Servings:</strong> <span id="servings">1</span></div>
+                </div>
+            </div>
+            
+            <div class="recipe-section">
+                <h2 class="recipe-section-title">Nutrition Information</h2>
+                <div class="nutrition-grid">
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="calories-value">450</div>
+                        <div class="nutrition-label">Calories</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="protein-value">22g</div>
+                        <div class="nutrition-label">Protein</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="carbs-value">35g</div>
+                        <div class="nutrition-label">Carbs</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="fat-value">25g</div>
+                        <div class="nutrition-label">Fat</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="fiber-value">8g</div>
+                        <div class="nutrition-label">Fiber</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="sugar-value">3g</div>
+                        <div class="nutrition-label">Sugar</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="sodium-value">450mg</div>
+                        <div class="nutrition-label">Sodium</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value" id="cholesterol-value">370mg</div>
+                        <div class="nutrition-label">Cholesterol</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recipe-section">
+                <h2 class="recipe-section-title">Ingredients</h2>
+                <ul class="ingredients-list" id="ingredients-list">
+                    <li>2 large eggs</li>
+                    <li>1/4 cup fresh spinach, chopped</li>
+                    <li>1/4 avocado, sliced</li>
+                    <li>1 slice whole grain bread</li>
+                    <li>1 tsp olive oil</li>
+                    <li>Salt and pepper to taste</li>
+                </ul>
+            </div>
+            
+            <div class="recipe-section">
+                <h2 class="recipe-section-title">Instructions</h2>
+                <ol class="instructions-list" id="instructions-list">
+                    <li>Heat olive oil in a non-stick skillet over medium heat.</li>
+                    <li>Whisk eggs in a bowl with a pinch of salt and pepper.</li>
+                    <li>Pour eggs into the skillet and let cook undisturbed for 1 minute.</li>
+                    <li>Sprinkle chopped spinach over one half of the omelet.</li>
+                    <li>When eggs are nearly set, add avocado slices on top of the spinach.</li>
+                    <li>Fold the omelet in half and cook for another 30 seconds.</li>
+                    <li>Toast the whole grain bread until golden brown.</li>
+                    <li>Serve the omelet with the toast on the side.</li>
+                </ol>
+            </div>
+            
+            <div class="recipe-footer">
+                <p id="allergy-note" class="allergy-warning">Allergy Note: Contains eggs</p>
+                <p id="medication-note" class="medication-note">Medication Note: Suitable for GLP-1 Agonists</p>
+            </div>
+        </div>
+    </div>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Toggle advanced options
@@ -629,6 +850,12 @@
             const modalApiKey = document.getElementById('modal-api-key');
             const apiStatus = document.getElementById('api-status');
             
+            // Recipe modal elements
+            const recipeModal = document.getElementById('recipe-modal');
+            const closeRecipeModal = function() {
+                recipeModal.style.display = 'none';
+            };
+            
             // Check if API key exists in localStorage
             if (localStorage.getItem('metabolicrx_api_key')) {
                 modalApiKey.value = localStorage.getItem('metabolicrx_api_key');
@@ -657,6 +884,13 @@
                     updateApiStatus(false);
                 }
                 settingsModal.style.display = 'none';
+            });
+            
+            // Close recipe modal when clicking outside content
+            recipeModal.addEventListener('click', function(e) {
+                if (e.target === recipeModal) {
+                    closeRecipeModal();
+                }
             });
             
             function updateApiStatus(active) {
@@ -733,11 +967,12 @@
                 const hasLunch = formData.meals.lunch;
                 const hasDinner = formData.meals.dinner;
                 const hasSnacks = formData.meals.snacks;
-                const allergies = formData.allergies ? ` (Allergy-aware: ${formData.allergies})` : '';
-                const medicationNote = formData.medication !== 'none' ? ` (Adjusted for ${formData.medication} medication)` : '';
-                const apiNote = apiActive ? '<div style="margin-bottom: 1rem; color: var(--secondary); font-size: 0.875rem;"><i class="fas fa-check-circle"></i> Powered by Google AI</div>' : '';
+                const allergies = formData.allergies;
+                const medication = formData.medication;
                 
-                mealPlanHTML += apiNote;
+                if (apiActive) {
+                    mealPlanHTML += '<div style="margin-bottom: 1rem; color: var(--secondary); font-size: 0.875rem;"><i class="fas fa-check-circle"></i> Powered by Google AI</div>';
+                }
                 
                 for (let i = 1; i <= days; i++) {
                     const dayName = new Date(Date.now() + (i * 24 * 60 * 60 * 1000)).toLocaleDateString('en-US', { weekday: 'long' });
@@ -749,13 +984,13 @@
                     
                     if (hasBreakfast) {
                         mealPlanHTML += `
-                            <div class="meal">
+                            <div class="meal" onclick="showRecipeDetail('Avocado and Spinach Omelet with Whole Grain Toast', ${i}, 'breakfast', '${allergies}', '${medication}')">
                                 <div class="meal-header">
-                                    <div class="meal-name">Breakfast</div>
+                                    <div class="meal-name">Avocado and Spinach Omelet with Whole Grain Toast</div>
                                     <div class="meal-time">8:00 AM</div>
                                 </div>
                                 <div class="meal-description">
-                                    ${apiActive ? 'AI-optimized ' : ''}Avocado and spinach omelet with whole grain toast${allergies}${medicationNote}
+                                    Fluffy omelet packed with healthy fats and fiber${allergies ? ' (Allergy-aware)' : ''}${medication !== 'none' ? ' (Medication-adjusted)' : ''}
                                 </div>
                                 <div class="meal-nutrition">
                                     <div class="nutrition-item"><span>Calories:</span> <span>450</span></div>
@@ -768,13 +1003,13 @@
                     
                     if (hasLunch) {
                         mealPlanHTML += `
-                            <div class="meal">
+                            <div class="meal" onclick="showRecipeDetail('Grilled Chicken Salad with Balsamic Vinaigrette', ${i}, 'lunch', '${allergies}', '${medication}')">
                                 <div class="meal-header">
-                                    <div class="meal-name">Lunch</div>
+                                    <div class="meal-name">Grilled Chicken Salad with Balsamic Vinaigrette</div>
                                     <div class="meal-time">12:30 PM</div>
                                 </div>
                                 <div class="meal-description">
-                                    ${apiActive ? 'AI-optimized ' : ''}Grilled chicken salad with mixed greens, cherry tomatoes, cucumber, and balsamic vinaigrette${allergies}${medicationNote}
+                                    Protein-rich salad with mixed greens and light dressing${allergies ? ' (Allergy-aware)' : ''}${medication !== 'none' ? ' (Medication-adjusted)' : ''}
                                 </div>
                                 <div class="meal-nutrition">
                                     <div class="nutrition-item"><span>Calories:</span> <span>550</span></div>
@@ -787,13 +1022,13 @@
                     
                     if (hasDinner) {
                         mealPlanHTML += `
-                            <div class="meal">
+                            <div class="meal" onclick="showRecipeDetail('Baked Salmon with Quinoa and Roasted Asparagus', ${i}, 'dinner', '${allergies}', '${medication}')">
                                 <div class="meal-header">
-                                    <div class="meal-name">Dinner</div>
+                                    <div class="meal-name">Baked Salmon with Quinoa and Roasted Asparagus</div>
                                     <div class="meal-time">6:30 PM</div>
                                 </div>
                                 <div class="meal-description">
-                                    ${apiActive ? 'AI-optimized ' : ''}Baked salmon with quinoa and roasted asparagus${allergies}${medicationNote}
+                                    Heart-healthy omega-3s with complex carbs${allergies ? ' (Allergy-aware)' : ''}${medication !== 'none' ? ' (Medication-adjusted)' : ''}
                                 </div>
                                 <div class="meal-nutrition">
                                     <div class="nutrition-item"><span>Calories:</span> <span>600</span></div>
@@ -806,13 +1041,13 @@
                     
                     if (hasSnacks) {
                         mealPlanHTML += `
-                            <div class="meal">
+                            <div class="meal" onclick="showRecipeDetail('Greek Yogurt with Mixed Berries and Almonds', ${i}, 'snack', '${allergies}', '${medication}')">
                                 <div class="meal-header">
-                                    <div class="meal-name">Snack</div>
+                                    <div class="meal-name">Greek Yogurt with Mixed Berries and Almonds</div>
                                     <div class="meal-time">3:00 PM</div>
                                 </div>
                                 <div class="meal-description">
-                                    ${apiActive ? 'AI-optimized ' : ''}Greek yogurt with mixed berries and almonds${allergies}${medicationNote}
+                                    Protein-packed snack with antioxidants${allergies ? ' (Allergy-aware)' : ''}${medication !== 'none' ? ' (Medication-adjusted)' : ''}
                                 </div>
                                 <div class="meal-nutrition">
                                     <div class="nutrition-item"><span>Calories:</span> <span>250</span></div>
@@ -829,6 +1064,50 @@
                 mealPlanElement.innerHTML = mealPlanHTML;
                 mealPlanElement.style.display = 'block';
             }
+            
+            // Make this function available globally
+            window.showRecipeDetail = function(recipeName, dayNumber, mealType, allergies, medication) {
+                const recipeModal = document.getElementById('recipe-modal');
+                const recipeTitle = document.getElementById('recipe-title');
+                const allergyNote = document.getElementById('allergy-note');
+                const medicationNote = document.getElementById('medication-note');
+                
+                // Set recipe title
+                recipeTitle.textContent = recipeName;
+                
+                // Set allergy note if applicable
+                if (allergies && allergies.trim() !== '') {
+                    allergyNote.textContent = `Allergy Note: Free from ${allergies}`;
+                    allergyNote.style.display = 'block';
+                } else {
+                    allergyNote.style.display = 'none';
+                }
+                
+                // Set medication note if applicable
+                if (medication && medication !== 'none') {
+                    let medText = '';
+                    switch(medication) {
+                        case 'glp1':
+                            medText = 'Portion-controlled for GLP-1 Agonists';
+                            break;
+                        case 'warfarin':
+                            medText = 'Vitamin K consistent for Warfarin';
+                            break;
+                        case 'maoi':
+                            medText = 'Tyramine-controlled for MAO Inhibitors';
+                            break;
+                        default:
+                            medText = `Adjusted for ${medication}`;
+                    }
+                    medicationNote.textContent = `Medication Note: ${medText}`;
+                    medicationNote.style.display = 'block';
+                } else {
+                    medicationNote.style.display = 'none';
+                }
+                
+                // Show the modal
+                recipeModal.style.display = 'flex';
+            };
         });
     </script>
 </body>
